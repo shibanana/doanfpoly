@@ -1,10 +1,47 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView } from 'react-native'
+import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList } from 'react-native'
+const listRecommended=[
+    {
+        images:require('../images/recom-list.png'),
+        title:'The RockiLand',
+        description:'Playlist by Renee Zw',
+    },
+    {
+        images:require('../images/recom-list2.png'),
+        title:'The Taylor',
+        description:'Playlist by Renee Zw',
+    },
+    {
+        images:require('../images/recom-list.png'),
+        title:'The Justin',
+        description:'Playlist by Renee Zw',
+    },
+    {
+        images:require('../images/recom-list2.png'),
+        title:'The Shiba',
+        description:'Playlist by Renee Zw',
+    },
 
+]
+const listSinger=[
+    {
+        id:'1',
+        images:require('../images/singer.png')
+    },
+    {
+        id:'2',
+        images:require('../images/singer2.png')
+    },
+    {
+        id:'3',
+        images:require('../images/singer3.png')
+    }
+]
 export default class Home extends Component {
     constructor(props){
         super(props);
         this.state={
+
         }
     }
     static navigationOptions = {
@@ -19,6 +56,23 @@ export default class Home extends Component {
             return true;
           });
     }
+    
+    renderRecommend(item) {
+        return (
+            <View style={styles.recomList}>
+            <Image source={item.images} style={styles.listImage}></Image>
+            <Text style={styles.listTitle}>{item.title}</Text>
+            <Text style={styles.listDescription}>{item.description}</Text>
+            </View>
+        );
+      }
+    
+    renderSinger(item){
+        return(     
+             <Image source={item.images} style={styles.singerImages}></Image>
+        )
+       
+    }
     render() {
         return (
             <ImageBackground source={require('../images/background.png')} style={styles.container}>
@@ -32,36 +86,32 @@ export default class Home extends Component {
                         placeholderTextColor = "#a3a6ae"
                     />
                 </View>
-                <View style={styles.recomListAll}>
-                    <Text style={styles.recomListTitle}>Dành cho bạn</Text>
-                    <ScrollView
-                        horizontal={true}
-                        showsHorizontalScrollIndicator={false}
-                        snapToAlignment='center'
-                        
-                    >
-                        <View style={styles.recomList}>
-                            <Image source={require('../images/recom-list.png')} style={styles.listImage} ></Image>
-                            <Text style={styles.listTitle}>The RockiLand</Text>
-                            <Text style={styles.listDescription}>Playlist by Renee Zw</Text>
-                        </View>
-                        <View style={styles.recomList}>
-                            <Image source={require('../images/recom-list2.png')} style={styles.listImage}></Image>
-                            <Text style={styles.listTitle}>The RockiLand</Text>
-                            <Text style={styles.listDescription}>Playlist by Renee Zw</Text>
-                        </View>
-                        <View style={styles.recomList}>
-                            <Image source={require('../images/recom-list.png')} style={styles.listImage}></Image>
-                            <Text style={styles.listTitle}>The RockiLand</Text>
-                            <Text style={styles.listDescription}>Playlist by Renee Zw</Text>
-                        </View>
-                        <View style={styles.recomList}>
-                            <Image source={require('../images/recom-list.png')} style={styles.listImage}></Image>
-                            <Text style={styles.listTitle}>The RockiLand</Text>
-                            <Text style={styles.listDescription}>Playlist by Renee Zw</Text>
-                        </View>
-                    </ScrollView>
-                </View>
+                <ScrollView style={flex=1}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.recomListAll}>
+                        <Text style={styles.recomListTitle}>Dành cho bạn</Text>
+                            <FlatList
+                                data={listRecommended}
+                                renderItem={({item,index})=>this.renderRecommend(item)}
+                                keyExtractor={item=>item.title}
+                                horizontal={true}
+                                showsHorizontalScrollIndicator={false}
+                            />
+                    </View>
+                    <View style={styles.recomListAll}>
+                        <Text style={styles.recomListTitle}>Ca sĩ nổi bật</Text>
+                        <View style={styles.singerList}>
+                        <FlatList
+                            data={listSinger}
+                            renderItem={({item,index})=>this.renderSinger(item)}
+                            keyExtractor={item=>item.id}
+                            horizontal={true}
+                            showsHorizontalScrollIndicator={false}
+                        />     
+                        </View>   
+                    </View>
+                </ScrollView>
             </ImageBackground>
             
         )
@@ -121,5 +171,14 @@ const styles = StyleSheet.create({
         width:200,
         height:100,
         borderRadius:5,
+    },
+    singerImages:{
+        width:80,
+        height:80,
+        borderRadius:80/2,
+    },
+    singerList:{
+        flexDirection:'row',
+        justifyContent:'space-between'
     }
   })
