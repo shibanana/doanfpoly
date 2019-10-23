@@ -1,23 +1,28 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList } from 'react-native'
+import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList,TouchableOpacity } from 'react-native'
+import Icon from 'react-native-vector-icons/FontAwesome';
 const listRecommended=[
     {
-        images:require('../images/recom-list.png'),
+        id:'1',
+        images:require('../images/recommended/recom-list.png'),
         title:'The RockiLand',
         description:'Playlist by Renee Zw',
     },
     {
-        images:require('../images/recom-list2.png'),
+        id:'2',
+        images:require('../images/recommended/recom-list2.png'),
         title:'The Taylor',
         description:'Playlist by Renee Zw',
     },
     {
-        images:require('../images/recom-list.png'),
+        id:'3',
+        images:require('../images/recommended/recom-list.png'),
         title:'The Justin',
         description:'Playlist by Renee Zw',
     },
     {
-        images:require('../images/recom-list2.png'),
+        id:'4',
+        images:require('../images/recommended/recom-list2.png'),
         title:'The Shiba',
         description:'Playlist by Renee Zw',
     },
@@ -26,16 +31,88 @@ const listRecommended=[
 const listSinger=[
     {
         id:'1',
-        images:require('../images/singer.png')
+        images:require('../images/singer/singer.png'),
+        singerName:'Alicia Q'
     },
     {
         id:'2',
-        images:require('../images/singer2.png')
+        images:require('../images/singer/singer2.png'),
+        singerName:'Lana Del Roj'
     },
     {
         id:'3',
-        images:require('../images/singer3.png')
-    }
+        images:require('../images/singer/singer3.png'),
+        singerName:'Camilla Nabilla'
+    },
+    {
+        id:'4',
+        images:require('../images/singer/singer.png'),
+        singerName:'Alicia Q'
+    },
+]
+const listPlaylist=[
+    {
+        id:'1',
+        images:require('../images/hotplaylist/hotplaylist-1.png'),
+        title:'Summer Time',
+        description:'Playlist by Renee Zwalger',
+    },
+    {
+        id:'2',
+        images:require('../images/hotplaylist/hotplaylist-2.png'),
+        title:'Nature Accoustic',
+        description:'Playlist by Denis Buroughi',
+    },
+    {
+        id:'3',
+        images:require('../images/hotplaylist/hotplaylist-3.png'),
+        title:'Weekly Blues',
+        description:'Playlist by Renee Zwalger',
+    },
+    {
+        id:'4',
+        images:require('../images/hotplaylist/hotplaylist-4.png'),
+        title:'Coffee Jaazy',
+        description:'Playlist by Denis Buroughi',
+    },
+]
+const suggest=[
+    {
+        id:'1',
+        images:require('../images/suggest/suggest-1.jpg'),
+        title:'Una Noche (Versíon Salsa)',
+        singer:'Arjan, Gilberto Santa Rosa',
+    },
+    {
+        id:'2',
+        images:require('../images/suggest/suggest-2.jpg'),
+        title:'Bendecida',
+        singer:'Yeison Jimenez',
+    },
+    {
+        id:'3',
+        images:require('../images/suggest/suggest-3.jpg'),
+        title:'Atrévete',
+        singer:'Nicky Jam, Sech',
+    },
+    {
+        id:'4',
+        images:require('../images/suggest/suggest-4.jpg'),
+        title:'Por un segundo',
+        singer:'Fabio CL',
+    },
+    {
+        id:'5',
+        images:require('../images/suggest/suggest-5.jpg'),
+        title:'Tutu',
+        singer:'Camilo, Pedro Capó',
+    },
+    {
+        id:'6',
+        images:require('../images/suggest/suggest-6.jpg'),
+        title:'Sin Permiso',
+        singer:'Javier Ramirez, Arjan',
+    },
 ]
 export default class Home extends Component {
     constructor(props){
@@ -44,6 +121,7 @@ export default class Home extends Component {
 
         }
     }
+    
     static navigationOptions = {
         //To hide the ActionBar/NavigationBar
         header: null,
@@ -57,61 +135,145 @@ export default class Home extends Component {
           });
     }
     
+    login(){
+        this.props.navigation.navigate('Mainlogin')
+    }
+    Artist(){
+        this.props.navigation.navigate('Artist')
+    }
+    Discover(){
+        this.props.navigation.navigate('Discover')
+    }
+    NowPlay(){
+        this.props.navigation.navigate('NowPlay')
+    }
+    Music(){
+        this.props.navigation.navigate('Music')
+    }
     renderRecommend(item) {
         return (
-            <View style={styles.recomList}>
+            <TouchableOpacity style={styles.recomList}
+            onPress={() => this.Discover()}>
             <Image source={item.images} style={styles.listImage}></Image>
             <Text style={styles.listTitle}>{item.title}</Text>
             <Text style={styles.listDescription}>{item.description}</Text>
-            </View>
+            </TouchableOpacity>
         );
       }
     
     renderSinger(item){
         return(     
-             <Image source={item.images} style={styles.singerImages}></Image>
-        )
-       
+            <TouchableOpacity style={styles.singerList}
+            onPress={() => this.Artist()}> 
+                <Image source={item.images} style={styles.singerImages}></Image>
+                <Text style={styles.singerName}>{item.singerName}</Text>
+            </TouchableOpacity>
+            
+        ) 
     }
+    renderPlaylist(item){
+        return(     
+            <View style={styles.singerList}>
+                <TouchableOpacity
+               
+                >
+                    <Image source={item.images} style={styles.singerImages}></Image>
+                    <Text style={styles.singerList}>{item.title}</Text>
+                    <Text style={styles.singerList}>{item.description}</Text>
+                </TouchableOpacity>
+            </View>
+            
+        ) 
+    }
+    renderSuggest(item){
+        return(     
+                <TouchableOpacity style={styles.suggestList}
+                 onPress={() => this.Music()}
+                >
+                    <Image source={item.images} style={styles.suggestImage}></Image>
+                    <View style={styles.suggestText}>
+                        <Text style={styles.suggestTextTitle}>{item.title}</Text>
+                        <Text style={styles.suggestTextSinger}>{item.singer}</Text>
+                    </View>
+                </TouchableOpacity>
+            
+        ) 
+    }
+    
     render() {
         return (
             <ImageBackground source={require('../images/background.png')} style={styles.container}>
-                <View style={styles.topbar}>
-                    <View style={styles.topBarImages}>
-                        <Image source={require('../images/user.png')} style={{width: 40, height: 40}}></Image>
+                    <View style={styles.topbar}>
+                        <TouchableOpacity style={styles.topBarImages} onPress={() => this.login()}>
+                            <Image source={require('../images/user.png')} style={{width: 40, height: 40}}></Image>
+                        </TouchableOpacity>
+                        <TextInput
+                            style={styles.topBarInput}
+                            placeholder="Tìm kiếm"
+                            placeholderTextColor = "#a3a6ae"
+                        />
                     </View>
-                    <TextInput
-                        style={styles.topBarInput}
-                        placeholder="Bạn đang nghĩ gì?"
-                        placeholderTextColor = "#a3a6ae"
-                    />
-                </View>
-                <ScrollView style={flex=1}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <View style={styles.recomListAll}>
-                        <Text style={styles.recomListTitle}>Dành cho bạn</Text>
+                    <ScrollView style={flex=1}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <View style={styles.recomListAll}>
+                            <Text style={styles.recomListTitle}>Dành cho bạn</Text>
+                                <FlatList
+                                    data={listRecommended}
+                                    renderItem={({item,index})=>this.renderRecommend(item)}
+                                    keyExtractor={item=>item.id}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                />
+                        </View>
+                        <View style={styles.recomListAll}>
+                            <Text style={styles.recomListTitle}>Ca sĩ nổi bật</Text>    
+                                <FlatList
+                                    data={listSinger}
+                                    renderItem={({item,index})=>this.renderSinger(item)}
+                                    keyExtractor={item=>item.id}
+                                    horizontal={true}
+                                    showsHorizontalScrollIndicator={false}
+                                />     
+                        </View>
+                        <View style={styles.recomListAll}>
+                            <Text style={styles.recomListTitle}>Hot Playlist</Text>    
+                            <View style={styles.playlist}>
+                                <TouchableOpacity style={styles.playlistItem}
+                                 >
+                                    <Image source={listPlaylist[0].images} style={styles.playlistImage}></Image>
+                                    <Text style={styles.playlistTitle}>{listPlaylist[0].title}</Text>
+                                    <Text style={styles.playlistDescription}>{listPlaylist[0].description}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.playlistItem}>
+                                    <Image source={listPlaylist[1].images} style={styles.playlistImage}></Image>
+                                    <Text style={styles.playlistTitle}>{listPlaylist[1].title}</Text>
+                                    <Text style={styles.playlistDescription}>{listPlaylist[1].description}</Text>
+                                </TouchableOpacity>
+                            </View>
+                            <View style={styles.playlist}>
+                                <TouchableOpacity style={styles.playlistItem}>
+                                    <Image source={listPlaylist[2].images} style={styles.playlistImage}></Image>
+                                    <Text style={styles.playlistTitle}>{listPlaylist[2].title}</Text>
+                                    <Text style={styles.playlistDescription}>{listPlaylist[2].description}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.playlistItem}>
+                                    <Image source={listPlaylist[3].images} style={styles.playlistImage}></Image>
+                                    <Text style={styles.playlistTitle}>{listPlaylist[3].title}</Text>
+                                    <Text style={styles.playlistDescription}>{listPlaylist[3].description}</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                        <View style={styles.recomListAll}>
+                            <Text style={styles.recomListTitle}>Gợi Ý</Text>
                             <FlatList
-                                data={listRecommended}
-                                renderItem={({item,index})=>this.renderRecommend(item)}
-                                keyExtractor={item=>item.title}
-                                horizontal={true}
-                                showsHorizontalScrollIndicator={false}
-                            />
-                    </View>
-                    <View style={styles.recomListAll}>
-                        <Text style={styles.recomListTitle}>Ca sĩ nổi bật</Text>
-                        <View style={styles.singerList}>
-                        <FlatList
-                            data={listSinger}
-                            renderItem={({item,index})=>this.renderSinger(item)}
-                            keyExtractor={item=>item.id}
-                            horizontal={true}
-                            showsHorizontalScrollIndicator={false}
-                        />     
-                        </View>   
-                    </View>
-                </ScrollView>
+                                    data={suggest}
+                                    renderItem={({item,index})=>this.renderSuggest(item)}
+                                    keyExtractor={item=>item.id}
+                                    scrollEnabled={false}
+                                />   
+                        </View>
+                    </ScrollView>
             </ImageBackground>
             
         )
@@ -133,7 +295,8 @@ const styles = StyleSheet.create({
         marginBottom:5,
         marginTop:5,
         alignItems:'center',
-        marginRight:10,   
+        marginRight:10,  
+        paddingLeft:10, 
     },
     topBarInput:{
         flex:9,
@@ -147,7 +310,6 @@ const styles = StyleSheet.create({
     },
     recomListAll:{
         marginTop:30,
-        marginBottom:30,
     },
     recomList:{
         marginRight:20,
@@ -158,6 +320,7 @@ const styles = StyleSheet.create({
     recomListTitle:{
         color:'#fff',
         fontSize:18,
+        fontWeight:'bold'
     },
     listTitle:{
         color:'#fff',
@@ -173,12 +336,64 @@ const styles = StyleSheet.create({
         borderRadius:5,
     },
     singerImages:{
-        width:80,
-        height:80,
-        borderRadius:80/2,
+        width:100,
+        height:100,
+        borderRadius:100/2,
+        marginBottom:5
+    },
+    singerName:{
+        color:'#fff',
+        textAlign:'center',
     },
     singerList:{
+        marginRight:20,
+        marginLeft:10,
+        marginTop:10,
+    },
+    playlist:{
         flexDirection:'row',
-        justifyContent:'space-between'
+        marginTop:10,
+        marginBottom:10
+    },
+    playlistItem:{
+        flex:1,
+        justifyContent:'space-between',
+        marginLeft:10
+    },
+    playlistImage:{
+        borderRadius:5,
+        height:227,
+        width:162
+    },
+    playlistTitle:{
+        color:'#fff',  
+        fontSize:15,
+        fontWeight:'bold'  
+    },
+    playlistDescription:{
+        color:'#a3a6ae',
+        fontSize:13
+    },
+    suggestList:{
+        flexDirection:'row',
+        marginLeft:5,
+        marginTop:10,
+    },
+    suggestImage:{
+        width:60,
+        height:60,
+         
+    },
+    suggestText:{
+        marginLeft:10
+    },
+    suggestTextTitle:{
+        color:'#fff',
+        fontSize:16,
+        fontWeight:'bold'  
+    },
+    suggestTextSinger:{
+        color:'#a3a6ae',
+        fontSize:14
     }
   })
