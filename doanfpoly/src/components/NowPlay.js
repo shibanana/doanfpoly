@@ -1,50 +1,86 @@
 import React, { Component } from 'react';
-import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView } from 'react-native'
-import Icon from 'react-native-vector-icons/Ionicons'
-import { FlatList } from 'react-native-gesture-handler';
-
-
-
+import { Text, StyleSheet, View,Image, ImageBackground, TouchableOpacity, Animated, Easing } from 'react-native';
+import CONFIG from '../config/custom';
+import Sound from 'react-native-sound';
+let sound
 export default class NowPlay extends Component {
     constructor(props) {
         super(props);
         this.state = {
             titleScreen: "Đang Phát",
+            playState: true,
+            link:CONFIG.LOINHO,
+            
+        }
+        this.RotateValueHolder = new Animated.Value(0);
+    }
+
+    static navigationOptions = ({ navigation }) => ({
+        title: 'Now Play',
+        headerStyle:{
+            backgroundColor:'#283149',
+        },
+        headerTintColor:'#fff',
+        headerTitleStyle:{
+            alignSelf: 'center',
+            fontSize:16,
+            fontWeight:'bold'
+        },
+        headerLayoutPreset: 'center'
+    });
+    componentDidMount =  async () => {
+        var link ='https://data.chiasenhac.com/downloads/2044/2/2043333-3adcc678/128/Loi%20Nho%20-%20Den_%20Phuong%20Anh%20Dao.mp3'
+        sound = await new Sound(link, null, (error) => {
+            if (error) {
+              console.log('failed to load the sound', error);
+            }
+            console.log('duration in seconds: ' + sound.getDuration());
+            sound.play();
+            this.StartImageRotateFunction();
+          });
+    }
+
+    StartImageRotateFunction() {
+        this.RotateValueHolder.setValue(0);
+        Animated.timing(this.RotateValueHolder, {
+            toValue: 1,
+            duration: 15000,
+            easing: Easing.linear,
+        }).start(() => this.StartImageRotateFunction());
+    }
+
+    changeStatus = () => {
+        const status = this.state.playState;
+        if(status){
+            this.setState({
+                playState:!status
+            });
+            sound.pause();
+        }else{
+            this.setState({
+                playState:true
+            })
+            sound.play();
         }
     }
 
-    static navigationOptions = {
-        header: null
-    }
-
-    // renderItem({item}) {
-    //     return (
-    //         <View>
-    //             <Image source = {item.imgUrl}></Image>
-    //         </View>
-    //     )
-    // } 
-    goBack(){
-        this.props.navigation.navigate('Home')
-    }
     render() {
+        const RotateData = this.RotateValueHolder.interpolate({
+            inputRange: [0, 10],
+            outputRange: ['0deg', '360deg'],
+          });
         return(
             <ImageBackground source={require('../images/background.png')} style = {styles.container}>
-                <View style = {styles.topBar}>
-                <View
-                        
-                        >
-                    <Icon onPress={()=>this.goBack()} style={{flex:2}} name="md-arrow-back" size={30} color="#fff"/>
-                        </View>
-                    <View >
-                        <Text style={styles.labelTopbar}>{this.state.titleScreen}</Text>
-                    </View>
-                    <View >
-                        <Icon name="md-search" color="#fff" size={20}/>
-                    </View>
-                </View>
                 <View style = {styles.imageNowPlay}>
-                    <Image style = {{borderRadius: 500}} source = {require('../images/nowplay_img.png')}></Image>
+                <Animated.Image
+                    style={{
+                        width: 250,
+                        height: 250,
+                        borderRadius: 500,
+                        transform: [{ rotate: RotateData }],
+                    }}
+                    source={require('../images/nowplay_img.png')}
+                />
                 </View>
                 <View style = {styles.infoSong}>
                     <Text style = {styles.styleSong}>The Way Home</Text>
@@ -54,11 +90,29 @@ export default class NowPlay extends Component {
                     <Image style = {{alignItems: "center"}} source = {require('../images/progress.png')}></Image>
                 </View>
                 <View style = {styles.iconBar}>
-                    <Icon style = {styles.styleIcon} name="ios-list" color="#fff" size={20}/>
-                    <Icon style = {styles.styleIcon} name="ios-skip-backward" color="#fff" size={20}/>
-                    <Icon style = {styles.styleIcon} name="md-pause" color="#fff" size={20}/>
-                    <Icon style = {styles.styleIcon} name="ios-skip-forward" color="#fff" size={20}/>
-                    <Icon style = {styles.styleIcon} name="ios-repeat" color="#fff" size={20}/>
+                    <TouchableOpacity style={styles.mediaButton}>
+                        <Image style = {styles.shuffleIcon} source={CONFIG.IC_SHUFFLE} tintColor='#fff' />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.mediaButton} >
+                        <Image style = {styles.previousIcon} source={CONFIG.IC_PREVIOUS} tintColor='#fff' />
+                    </TouchableOpacity>
+                    <TouchableOpacity 
+                        style={styles.mediaButton} 
+                        onPress = {() => this.changeStatus()}
+                    >
+                        { this.state.playState ? (
+                            <Image style = {styles.playIcon} source={CONFIG.IC_PAUSE} tintColor='#fff' />
+                        ) : (
+                            <Image style = {styles.playIcon} source={CONFIG.IC_PLAY} tintColor='#fff' />
+                        )}
+                        
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.mediaButton} >
+                        <Image style = {styles.previousIcon} source={CONFIG.IC_NEXT} tintColor='#fff' />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.mediaButton} >
+                        <Image style = {styles.shuffleIcon} source={CONFIG.IC_LOOP} tintColor='#fff' />
+                    </TouchableOpacity>
                 </View>
             </ImageBackground>
         )
@@ -96,7 +150,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold"
     },
     styleArtist: {
-        marginTop:50,
+        marginTop:10,
         color: "#fff",
         opacity: .5
     },
@@ -104,13 +158,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginTop: 50
     },
-    styleIcon:{
-        fontSize:30
+    shuffleIcon:{
+        width:20,
+        height:20,
+    },
+    previousIcon:{
+        width:25,
+        height:25,
+    },
+    playIcon:{
+        width:35,
+        height:35,
     },
     iconBar: {
         marginTop: 35,
         flexDirection: "row",
         justifyContent: "space-around",
-        marginTop:30
+    },
+    mediaButton:{
+        alignSelf:'center'
     }
 })

@@ -1,35 +1,50 @@
 
 import React, {Component} from 'react';
 import SplashScreen from './src/components/Splash';
-import { createStackNavigator, createAppContainer } from "react-navigation";
-import Main from './src/components/Main';
-import Home from './src/components/Home';
+import { createAppContainer, createSwitchNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation-stack';
+import Main from './src/components/Navigator/Main';
 import MainLogin from './src/components/MainLogin';
 import Login from './src/components/Login';
 import Signup from './src/components/Signup';
 import Artist from './src/components/Artist';
-
 import Discover from './src/components/Discover';
 import NowPlay from './src/components/NowPlay';
-import TabNavigator from './src/components/TabNavigator';
 import mp3 from './src/components/mp3';
-const AppNavigator = createStackNavigator(
+const AppStack = createStackNavigator({
+  Main:{
+    screen:Main,
+    navigationOptions:{
+      header:null
+    }
+  },
+  Artist:Artist,
+  NowPlay:NowPlay,
+  Discover:Discover,
+  Music:mp3,
+},{
+  headerLayoutPreset: 'center'
+}
+)
+const AuthStack = createStackNavigator(
   {
-    Splash: SplashScreen,
-    Home: Home,
-    Mainlogin:MainLogin,
+    MainLogin:MainLogin,
     Login:Login,
     Signup:Signup,
-    Artist:Artist,
-    NowPlay:NowPlay,
-    Discover:Discover,
-    Music:mp3,
+
   },
-  {
-    initialRouteName: "Splash"
-  }
 );
 
-export default createAppContainer(AppNavigator);
+export default createAppContainer(
+  createSwitchNavigator(
+    {
+      AuthLoading:SplashScreen,
+      App:AppStack,
+      Auth:AuthStack,
+    },
+    {
+      initialRouteName:'App',
+    }
+  ))
 
 

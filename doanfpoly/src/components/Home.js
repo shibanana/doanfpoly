@@ -118,7 +118,8 @@ export default class Home extends Component {
     constructor(props){
         super(props);
         this.state={
-
+            data:[],
+            isLoading:true,
         }
     }
     
@@ -132,28 +133,40 @@ export default class Home extends Component {
             // Typically you would use the navigator here to go to the last state.
           
             return true;
-          });
+        });
+        return fetch('http://172.20.10.3/demophp/view')
+        .then((response)=>response.json())
+        .then((responseJson)=>{
+            this.setState({
+                data:responseJson,
+                isLoading:false
+
+            })
+            console.log(this.state.data)
+        })
+        .catch((error)=>{
+            console.log(error)
+        });
     }
-    
     login(){
-        this.props.navigation.navigate('Mainlogin')
+        this.props.navigation.navigate('MainLogin')
     }
     Artist(){
-        this.props.navigation.navigate('Artist')
+        this.props.navigation.navigate('Music')
     }
     Discover(){
-        this.props.navigation.navigate('Discover')
+        this.props.navigation.navigate('Music')
     }
     NowPlay(){
         this.props.navigation.navigate('NowPlay')
     }
-    Music(){
-        this.props.navigation.navigate('Music')
-    }
+    // Music(item){
+    //     this.props.navigation.navigate('Music',{item})
+    // }
     renderRecommend(item) {
         return (
             <TouchableOpacity style={styles.recomList}
-            onPress={() => this.Discover()}>
+            onPress={() => this.NowPlay()}>
             <Image source={item.images} style={styles.listImage}></Image>
             <Text style={styles.listTitle}>{item.title}</Text>
             <Text style={styles.listDescription}>{item.description}</Text>
@@ -175,7 +188,7 @@ export default class Home extends Component {
         return(     
             <View style={styles.singerList}>
                 <TouchableOpacity
-               
+                    onPress={() => this.Discover()}
                 >
                     <Image source={item.images} style={styles.singerImages}></Image>
                     <Text style={styles.singerList}>{item.title}</Text>
@@ -186,13 +199,14 @@ export default class Home extends Component {
         ) 
     }
     renderSuggest(item){
+        const images = 'http://172.20.10.3/' + item.picture;
         return(     
                 <TouchableOpacity style={styles.suggestList}
-                 onPress={() => this.Music()}
+                 onPress={() => this.Music(item)}
                 >
-                    <Image source={item.images} style={styles.suggestImage}></Image>
+                    <Image source={{uri:images}} style={styles.suggestImage}></Image>
                     <View style={styles.suggestText}>
-                        <Text style={styles.suggestTextTitle}>{item.title}</Text>
+                        <Text style={styles.suggestTextTitle}>{item.name}</Text>
                         <Text style={styles.suggestTextSinger}>{item.singer}</Text>
                     </View>
                 </TouchableOpacity>
@@ -264,15 +278,18 @@ export default class Home extends Component {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        <View style={styles.recomListAll}>
+                        {!this.state.isLoading ? (
+                            <View style={styles.recomListAll}>
                             <Text style={styles.recomListTitle}>Gợi Ý</Text>
                             <FlatList
-                                    data={suggest}
+                                    data={this.state.data}
                                     renderItem={({item,index})=>this.renderSuggest(item)}
                                     keyExtractor={item=>item.id}
                                     scrollEnabled={false}
                                 />   
-                        </View>
+                            </View>
+                        ) : null}
+
                     </ScrollView>
             </ImageBackground>
             
