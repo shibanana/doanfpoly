@@ -19,9 +19,7 @@ const AppStack = createStackNavigator({
     }
   },
   Artist:Artist,
-  NowPlay:NowPlay,
   Discover:Discover,
-  Music:mp3,
 },{
   headerLayoutPreset: 'center'
 }

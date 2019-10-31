@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native'
-import CheckBox from '@react-native-community/checkbox';
 export default class Signup extends Component {
     static navigationOptions = {
         //To hide the ActionBar/NavigationBar

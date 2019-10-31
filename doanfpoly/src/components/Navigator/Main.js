@@ -1,12 +1,15 @@
 import React, { Component } from 'react'
 import { Text, View, Image, StyleSheet } from 'react-native'
 import { createAppContainer } from 'react-navigation';
-import { createBottomTabNavigator } from 'react-navigation-tabs';
+import { createBottomTabNavigator, BottomTabBar } from 'react-navigation-tabs';
 import CONFIG from '../../config/custom'
 import Home from '../Home';
 import Rank from '../Rank/Rank';
 import Mv from '../Mv/Mv';
 import Personal from '../Pesonal/Personal';
+import NowPlay from '../NowPlay';
+
+const TabBarComponent = props => <BottomTabBar {...props} />
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -53,6 +56,9 @@ const TabNavigator = createBottomTabNavigator(
               backgroundColor:'#283149'
           },
           keyboardHidesTabBar: true,
+          tabBarComponent: props => (
+            <NowPlay />
+          ),
       },
   }
 );

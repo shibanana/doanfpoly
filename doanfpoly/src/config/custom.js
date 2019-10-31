@@ -16,7 +16,8 @@ import ic_vinyl from '../images/icon/vinyl.png';
 import ic_youtube from '../images/icon/youtube.png';
 import ic_shuffle from '../images/icon/shuffle.png';
 import ic_loop from '../images/icon/exchange.png';
-import loinho from '../images/loinho.mp3'
+import ic_down_arrow from '../images/icon/down-arrow.png';
+import loinho from '../images/loinho.mp3';
 
 export default{
 /**
@@ -36,5 +37,6 @@ IC_VINYL: ic_vinyl,
 IC_YOUTUBE: ic_youtube,
 IC_SHUFFLE: ic_shuffle,
 IC_LOOP: ic_loop,
+IC_DOWN_ARROW: ic_down_arrow,
 LOINHO: loinho
 }

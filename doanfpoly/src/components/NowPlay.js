@@ -1,18 +1,30 @@
-import React, { Component } from 'react';
-import { Text, StyleSheet, View,Image, ImageBackground, TouchableOpacity, Animated, Easing } from 'react-native';
+import React, { Component, useRef } from 'react';
+import { Text, StyleSheet, View,Image, ImageBackground, TouchableOpacity, Animated, Easing, Dimensions} from 'react-native';
+import Modal from "react-native-modal";
+import Slider from '@react-native-community/slider';
 import CONFIG from '../config/custom';
 import Sound from 'react-native-sound';
+import BottomSheet from 'reanimated-bottom-sheet';
+const deviceWidth = Dimensions.get('window').width;
+const deviceHeight = Dimensions.get('window').height;
+// const modalRef = useRef<Modalize>(null);
 let sound
 export default class NowPlay extends Component {
     constructor(props) {
         super(props);
         this.state = {
             titleScreen: "Đang Phát",
-            playState: true,
             link:CONFIG.LOINHO,
-            
+            playState:'paused', //playing, paused
+            playSeconds:0,
+            duration:0,
+            modalVisible:true,
+            transparent: false,
+            minimize: false,
+            deviceHeight: deviceHeight,
         }
         this.RotateValueHolder = new Animated.Value(0);
+        this.sliderEditing = false;
     }
 
     static navigationOptions = ({ navigation }) => ({
@@ -28,50 +40,200 @@ export default class NowPlay extends Component {
         },
         headerLayoutPreset: 'center'
     });
-    componentDidMount =  async () => {
-        var link ='https://data.chiasenhac.com/downloads/2044/2/2043333-3adcc678/128/Loi%20Nho%20-%20Den_%20Phuong%20Anh%20Dao.mp3'
-        sound = await new Sound(link, null, (error) => {
-            if (error) {
-              console.log('failed to load the sound', error);
-            }
-            console.log('duration in seconds: ' + sound.getDuration());
-            sound.play();
-            this.StartImageRotateFunction();
-          });
-    }
 
     StartImageRotateFunction() {
-        this.RotateValueHolder.setValue(0);
-        Animated.timing(this.RotateValueHolder, {
+        this.RotateValueHolder.setValue(0)
+        Animated.timing(
+          this.RotateValueHolder,
+          {
             toValue: 1,
             duration: 15000,
-            easing: Easing.linear,
-        }).start(() => this.StartImageRotateFunction());
+            // easing: Easing.linear
+          }
+        ).start(() => this.StartImageRotateFunction())
     }
 
-    changeStatus = () => {
-        const status = this.state.playState;
-        if(status){
-            this.setState({
-                playState:!status
-            });
-            sound.pause();
-        }else{
-            this.setState({
-                playState:true
-            })
-            sound.play();
+
+    //  onOpen = () => {
+    //   const modal = modalRef.current;
+    
+    //   if (modal) {
+    //     modal.open();
+    //   }
+    // };
+    componentDidMount(){
+
+            this.play();
+
+            this.timeout = setInterval(() => {
+                if(this.sound && this.sound.isLoaded() && this.state.playState == 'playing' && !this.sliderEditing){
+                    this.sound.getCurrentTime((seconds, isPlaying) => {
+                        this.setState({playSeconds:seconds});
+                    })
+                }
+            }, 100);
+            this.StartImageRotateFunction();
+
+
+    }
+    // componentWillUnmount(){
+    //     if(this.sound){
+    //         this.sound.release();
+    //         this.sound = null;
+    //     }
+    //     if(this.timeout){
+    //         clearInterval(this.timeout);
+    //     }
+    // }
+
+    onSliderEditStart = () => {
+        this.sliderEditing = true;
+    }
+    onSliderEditEnd = () => {
+        this.sliderEditing = false;
+    }
+    onSliderEditing = value => {
+        if(this.sound){
+            this.sound.setCurrentTime(value);
+            this.setState({playSeconds:value});
         }
     }
 
-    render() {
+    play = async () => {
+        if(this.sound){
+            this.sound.play(this.playComplete);
+            this.setState({playState:'playing'});
+        }else{
+            const filepath = 'https://data25.chiasenhac.com/downloads/2039/4/2038237-f8896462/32/La%20Ban%20Khong%20The%20Yeu%20-%20Lou%20Hoang.m4a';
+            console.log('[Play]', filepath);
+    
+            this.sound = new Sound(filepath, '', (error) => {
+                if (error) {
+                    console.log('failed to load the sound', error);
+                    Alert.alert('Notice', 'audio file error. (Error code : 1)');
+                    this.setState({playState:'paused'});
+                }else{
+                    this.setState({playState:'playing', duration:this.sound.getDuration()});
+                    this.sound.play(this.playComplete);
+                }
+            });    
+        }
+    }
+    playComplete = (success) => {
+        if(this.sound){
+            if (success) {
+                console.log('successfully finished playing');
+            } else {
+                console.log('playback failed due to audio decoding errors');
+                Alert.alert('Notice', 'audio file error. (Error code : 2)');
+            }
+            this.setState({playState:'paused', playSeconds:0});
+            this.sound.setCurrentTime(0);
+        }
+    }
+
+    pause = () => {
+        if(this.sound){
+            this.sound.pause();
+        }
+
+        this.setState({playState:'paused'});
+    }
+
+    jumpPrev15Seconds = () => {this.jumpSeconds(-15);}
+    jumpNext15Seconds = () => {this.jumpSeconds(15);}
+    jumpSeconds = (secsDelta) => {
+        if(this.sound){
+            this.sound.getCurrentTime((secs, isPlaying) => {
+                let nextSecs = secs + secsDelta;
+                if(nextSecs < 0) nextSecs = 0;
+                else if(nextSecs > this.state.duration) nextSecs = this.state.duration;
+                this.sound.setCurrentTime(nextSecs);
+                this.setState({playSeconds:nextSecs});
+            })
+        }
+    }
+
+    getAudioTimeString(seconds){
+        const h = parseInt(seconds/(60*60));
+        const m = parseInt(seconds%(60*60)/60);
+        const s = parseInt(seconds%60);
+
+        return ((h<10?'0'+h:h) + ':' + (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
+    }
+
+    closeModal = () => {
+        this.setState({
+            minimize: true,
+            transparent: true,
+        })
+    }
+    showModal = () => {
+        this.setState({
+            minimize: false,
+            transparent: false,
+        })
+    }
+    close = () => {
+        this.sound.stop();
+        this.setState({
+            modalVisible: false,
+            deviceHeight: 50,
+        })
+    }
+    renderHeader = () => {
         const RotateData = this.RotateValueHolder.interpolate({
-            inputRange: [0, 10],
-            outputRange: ['0deg', '360deg'],
-          });
-        return(
+            inputRange: [0, 1],
+            outputRange: ['0deg', '360deg']
+          })
+        const currentTimeString = this.getAudioTimeString(this.state.playSeconds);
+        const durationString = this.getAudioTimeString(this.state.duration);
+        const {name} = this.props
+        return (
+            <View style={{flex:1, height:deviceHeight, marginTop:20}}>
+            <TouchableOpacity style={styles.modal} onPress = { () => this.showModal()}>
+                <Image style={styles.modalImg} source={require('../images/nowplay_img.png')} />
+                <View style={styles.modalText}>
+                    <Text numberOfLines={1} style={{color:'#fff'}}>Bài Này Chill Phết</Text>
+                    <Text style={{color:'#a3a6ae'}}>Đen</Text>
+                </View>
+                <View style={styles.modalMedia}>
+                    <TouchableOpacity style={styles.modalMediaButton}  onPress={this.jumpPrev15Seconds} >
+                        <Image style={styles.modalIcon} source={CONFIG.IC_PREVIOUS} tintColor={'#fff'} />
+                    </TouchableOpacity>
+                    { this.state.playState == 'playing' &&
+                        <TouchableOpacity 
+                            onPress={this.pause} 
+                            style={styles.modalMediaButton} 
+                            >
+                            <Image style={styles.modalIcon} source={CONFIG.IC_PAUSE} tintColor='#fff' />
+                        </TouchableOpacity>
+                        }
+                    { this.state.playState == 'paused' &&
+                        <TouchableOpacity 
+                            onPress={this.play}
+                            style={styles.modalMediaButton}
+                            >
+                            <Image style={styles.modalIcon} source={CONFIG.IC_PLAY} tintColor='#fff' />
+                        </TouchableOpacity>
+                        }
+                    <TouchableOpacity style={styles.modalMediaButton} onPress={this.jumpNext15Seconds}>
+                        <Image style={styles.modalIcon} source={CONFIG.IC_NEXT} tintColor={'#fff'} />
+                    </TouchableOpacity>              
+                </View>
+            </TouchableOpacity>
             <ImageBackground source={require('../images/background.png')} style = {styles.container}>
-                <View style = {styles.imageNowPlay}>
+            <View style={styles.headerModal}>
+                <TouchableOpacity
+                >
+                    <Image style={styles.modalIcon} source = {CONFIG.IC_DOWN_ARROW} tintColor={'#fff'} />
+                </TouchableOpacity>
+                <View>
+                    <Text numberOfLines={1} style={{color:'#fff'}}>Bài Này Chill Phết</Text>
+                    <Text style={{color:'#a3a6ae'}}>Đen</Text>
+                </View>
+            </View>
+            <View style = {styles.imageNowPlay}>
                 <Animated.Image
                     style={{
                         width: 250,
@@ -81,40 +243,67 @@ export default class NowPlay extends Component {
                     }}
                     source={require('../images/nowplay_img.png')}
                 />
-                </View>
-                <View style = {styles.infoSong}>
-                    <Text style = {styles.styleSong}>The Way Home</Text>
-                    <Text style = {styles.styleArtist}>DyTruong</Text>
-                </View>
-                <View style = {styles.progress}>
-                    <Image style = {{alignItems: "center"}} source = {require('../images/progress.png')}></Image>
-                </View>
-                <View style = {styles.iconBar}>
-                    <TouchableOpacity style={styles.mediaButton}>
-                        <Image style = {styles.shuffleIcon} source={CONFIG.IC_SHUFFLE} tintColor='#fff' />
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.mediaButton} >
-                        <Image style = {styles.previousIcon} source={CONFIG.IC_PREVIOUS} tintColor='#fff' />
-                    </TouchableOpacity>
+            </View>
+            <View style = {styles.infoSong}>
+                <Text style = {styles.styleSong}>The Way Home</Text>
+                <Text style = {styles.styleArtist}>{name}</Text>
+            </View>
+            <View style={{marginVertical:30, marginHorizontal:15, flexDirection:'row'}}>
+                <Text style={{color:'white', alignSelf:'center'}}>{currentTimeString}</Text>
+                <Slider
+                    maximumValue = { this.state.duration }
+                    minimumTrackTintColor= { '#3ea512' }
+                    maximumTrackTintColor= { '#fff' }
+                    thumbTintColor = {'#3ea512'}
+                    onSlidingStart= { this.onSliderEditStart }
+                    onSlidingComplete= { this.onSliderEditEnd }
+                    value = { this.state.playSeconds }
+                    onValueChange= { this.onSliderEditing }
+                    style={{flex:1, alignSelf:'center', marginHorizontal:Platform.select({ios:5})}}/>
+                <Text style={{color:'white', alignSelf:'center'}}>{durationString}</Text>
+            </View>
+            <View style = {styles.iconBar}>
+                <TouchableOpacity style={styles.mediaButton}>
+                    <Image style = {styles.shuffleIcon} source={CONFIG.IC_SHUFFLE} tintColor='#fff' />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.mediaButton} onPress={this.jumpPrev15Seconds} >
+                    <Image style = {styles.previousIcon} source={CONFIG.IC_PREVIOUS} tintColor='#fff' />
+                </TouchableOpacity>
+                { this.state.playState == 'playing' &&
                     <TouchableOpacity 
+                        onPress={this.pause} 
                         style={styles.mediaButton} 
-                        onPress = {() => this.changeStatus()}
-                    >
-                        { this.state.playState ? (
-                            <Image style = {styles.playIcon} source={CONFIG.IC_PAUSE} tintColor='#fff' />
-                        ) : (
-                            <Image style = {styles.playIcon} source={CONFIG.IC_PLAY} tintColor='#fff' />
-                        )}
-                        
+                        >
+                        <Image style = {styles.playIcon} source={CONFIG.IC_PAUSE} tintColor='#fff' />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.mediaButton} >
-                        <Image style = {styles.previousIcon} source={CONFIG.IC_NEXT} tintColor='#fff' />
+                    }
+                { this.state.playState == 'paused' &&
+                    <TouchableOpacity 
+                        onPress={this.play}
+                        style={styles.mediaButton}
+                        >
+                        <Image style = {styles.playIcon} source={CONFIG.IC_PLAY} tintColor='#fff' />
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.mediaButton} >
-                        <Image style = {styles.shuffleIcon} source={CONFIG.IC_LOOP} tintColor='#fff' />
-                    </TouchableOpacity>
-                </View>
-            </ImageBackground>
+                    }
+                <TouchableOpacity style={styles.mediaButton} onPress={this.jumpNext15Seconds} >
+                    <Image style = {styles.previousIcon} source={CONFIG.IC_NEXT} tintColor='#fff' />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.mediaButton} >
+                    <Image style = {styles.shuffleIcon} source={CONFIG.IC_LOOP} tintColor='#fff' />
+                </TouchableOpacity>
+            </View>
+        </ImageBackground>
+        </View>
+        )
+    }
+    
+    render() {
+        return(
+            <BottomSheet
+                snapPoints = {[deviceHeight, 68]}
+                renderHeader = {this.renderHeader}
+            />
+
         )
     }
 }
@@ -122,11 +311,9 @@ export default class NowPlay extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // paddingHorizontal: 0
+        justifyContent: 'center'
     },
     topBar: {
-        marginHorizontal: 45,
-        marginVertical: 40,
         flexDirection: 'row',
         justifyContent: "space-between",
         alignItems: "center"
@@ -177,5 +364,41 @@ const styles = StyleSheet.create({
     },
     mediaButton:{
         alignSelf:'center'
+    },
+    modal:{
+        flexDirection:'row',
+        backgroundColor:'#283149',
+        height:50,
+        alignItems:'center',
+        borderWidth:0.2,
+        borderColor:'gray',
+        justifyContent:'flex-end',
+    },
+    modalImg:{
+        width: 40,
+        height: 40,
+        borderRadius:20,
+        flex:1,
+        justifyContent:'center',
+    },
+    modalText:{
+        padding: 10,
+        flex:5,
+    },
+    modalIcon:{
+        width: 25,
+        height: 25,
+    },
+    modalMedia:{
+        flex:4,
+        flexDirection:'row',
+        justifyContent:'center',
+
+    },
+    modalMediaButton:{
+        paddingHorizontal: 5,
+    },
+    headerModal:{
+        flexDirection: 'row'
     }
 })

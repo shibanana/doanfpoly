@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList,TouchableOpacity } from 'react-native'
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList,TouchableOpacity, StatusBar } from 'react-native';
+import NowPlay from './NowPlay';
+import CONFIG from '../config/custom';
 const listRecommended=[
     {
         id:'1',
@@ -120,6 +121,8 @@ export default class Home extends Component {
         this.state={
             data:[],
             isLoading:true,
+            isPlaying:false,
+            modalVisible:false,
         }
     }
     
@@ -160,13 +163,24 @@ export default class Home extends Component {
     NowPlay(){
         this.props.navigation.navigate('NowPlay')
     }
-    // Music(item){
-    //     this.props.navigation.navigate('Music',{item})
-    // }
+    Music(item){
+        this.props.navigation.navigate('Music',{item})
+    }
+    showModal = () => {
+        this.setState({
+            modalVisible:true,
+        })
+    }
+    callbackPlaying = ( playing, visible ) => {
+        this.setState({
+            isPlaying: playing,
+            modalVisible: visible,
+        })
+    }
     renderRecommend(item) {
         return (
             <TouchableOpacity style={styles.recomList}
-            onPress={() => this.NowPlay()}>
+            onPress={() => this.showModal()}>
             <Image source={item.images} style={styles.listImage}></Image>
             <Text style={styles.listTitle}>{item.title}</Text>
             <Text style={styles.listDescription}>{item.description}</Text>
@@ -216,6 +230,8 @@ export default class Home extends Component {
     
     render() {
         return (
+            <>
+            <StatusBar backgroundColor={'#283149'} /> 
             <ImageBackground source={require('../images/background.png')} style={styles.container}>
                     <View style={styles.topbar}>
                         <TouchableOpacity style={styles.topBarImages} onPress={() => this.login()}>
@@ -292,7 +308,12 @@ export default class Home extends Component {
 
                     </ScrollView>
             </ImageBackground>
-            
+            {this.state.modalVisible ? (
+                <NowPlay
+                    name={'dsdsa'}
+                />
+            ) : null}
+            </>
         )
     }
 }
@@ -412,5 +433,6 @@ const styles = StyleSheet.create({
     suggestTextSinger:{
         color:'#a3a6ae',
         fontSize:14
-    }
+    },
+
   })
