@@ -1,14 +1,11 @@
 import React, { Component, useRef } from 'react';
-import { Text, StyleSheet, View,Image, ImageBackground, TouchableOpacity, Animated, Easing, Dimensions} from 'react-native';
-import Modal from "react-native-modal";
+import { Text, StyleSheet, View,Image, ImageBackground, TouchableOpacity, Animated, Easing, Dimensions, Modal} from 'react-native';
 import Slider from '@react-native-community/slider';
 import CONFIG from '../config/custom';
 import Sound from 'react-native-sound';
 import BottomSheet from 'reanimated-bottom-sheet';
-const deviceWidth = Dimensions.get('window').width;
 const deviceHeight = Dimensions.get('window').height;
-// const modalRef = useRef<Modalize>(null);
-let sound
+
 export default class NowPlay extends Component {
     constructor(props) {
         super(props);
@@ -22,6 +19,7 @@ export default class NowPlay extends Component {
             transparent: false,
             minimize: false,
             deviceHeight: deviceHeight,
+            data: this.props.data,
         }
         this.RotateValueHolder = new Animated.Value(0);
         this.sliderEditing = false;
@@ -53,14 +51,6 @@ export default class NowPlay extends Component {
         ).start(() => this.StartImageRotateFunction())
     }
 
-
-    //  onOpen = () => {
-    //   const modal = modalRef.current;
-    
-    //   if (modal) {
-    //     modal.open();
-    //   }
-    // };
     componentDidMount(){
 
             this.play();
@@ -76,15 +66,15 @@ export default class NowPlay extends Component {
 
 
     }
-    // componentWillUnmount(){
-    //     if(this.sound){
-    //         this.sound.release();
-    //         this.sound = null;
-    //     }
-    //     if(this.timeout){
-    //         clearInterval(this.timeout);
-    //     }
-    // }
+    componentWillUnmount(){
+        if(this.sound){
+            this.sound.release();
+            this.sound = null;
+        }
+        if(this.timeout){
+            clearInterval(this.timeout);
+        }
+    }
 
     onSliderEditStart = () => {
         this.sliderEditing = true;
@@ -104,13 +94,12 @@ export default class NowPlay extends Component {
             this.sound.play(this.playComplete);
             this.setState({playState:'playing'});
         }else{
-            const filepath = '';
+            const filepath = CONFIG.API.URL_GET_ITEM + this.state.data.path;
             console.log('[Play]', filepath);
     
             this.sound = new Sound(filepath, '', (error) => {
                 if (error) {
                     console.log('failed to load the sound', error);
-                    // Alert.alert('Notice', 'audio file error. (Error code : 1)');
                     this.setState({playState:'paused'});
                 }else{
                     this.setState({playState:'playing', duration:this.sound.getDuration()});
@@ -163,10 +152,7 @@ export default class NowPlay extends Component {
     }
 
     closeModal = () => {
-        this.setState({
-            minimize: true,
-            transparent: true,
-        })
+        this.props.callbackClose(false)
     }
     showModal = () => {
         this.setState({
@@ -181,6 +167,7 @@ export default class NowPlay extends Component {
             deviceHeight: 50,
         })
     }
+    
     renderHeader = () => {
         const RotateData = this.RotateValueHolder.interpolate({
             inputRange: [0, 1],
@@ -188,14 +175,15 @@ export default class NowPlay extends Component {
           })
         const currentTimeString = this.getAudioTimeString(this.state.playSeconds);
         const durationString = this.getAudioTimeString(this.state.duration);
-        const {name} = this.props
+        const { data } = this.state;
+        const images = CONFIG.API.URL_GET_ITEM+data.picture;
         return (
             <View style={{flex:1, height:deviceHeight, marginTop:20}}>
             <TouchableOpacity style={styles.modal} onPress = { () => this.showModal()}>
-                <Image style={styles.modalImg} source={require('../images/nowplay_img.png')} />
+                <Image style={styles.modalImg} source={{uri:images}} />
                 <View style={styles.modalText}>
-                    <Text numberOfLines={1} style={{color:'#fff'}}>Bài Này Chill Phết</Text>
-                    <Text style={{color:'#a3a6ae'}}>Đen</Text>
+                    <Text numberOfLines={1} style={{color:'#fff'}}>{data.name}</Text>
+                    <Text style={{color:'#a3a6ae'}}>{data.singer}</Text>
                 </View>
                 <View style={styles.modalMedia}>
                     <TouchableOpacity style={styles.modalMediaButton}  onPress={this.jumpPrev15Seconds} >
@@ -219,18 +207,22 @@ export default class NowPlay extends Component {
                         }
                     <TouchableOpacity style={styles.modalMediaButton} onPress={this.jumpNext15Seconds}>
                         <Image style={styles.modalIcon} source={CONFIG.IC_NEXT} tintColor={'#fff'} />
-                    </TouchableOpacity>              
+                    </TouchableOpacity>  
+                    <TouchableOpacity style={styles.modalMediaButton} onPress={this.closeModal}>
+                        <Image style={styles.modalIcon} source={CONFIG.IC_DISC} tintColor={'#fff'} />
+                    </TouchableOpacity>            
                 </View>
             </TouchableOpacity>
             <ImageBackground source={require('../images/background.png')} style = {styles.container}>
             <View style={styles.headerModal}>
                 <TouchableOpacity
+                    onPress = {() => this.closeModal}
                 >
                     <Image style={styles.modalIcon} source = {CONFIG.IC_DOWN_ARROW} tintColor={'#fff'} />
                 </TouchableOpacity>
                 <View>
-                    <Text numberOfLines={1} style={{color:'#fff'}}>Bài Này Chill Phết</Text>
-                    <Text style={{color:'#a3a6ae'}}>Đen</Text>
+                    <Text numberOfLines={1} style={{color:'#fff'}}>{data.name}</Text>
+                    <Text style={{color:'#a3a6ae'}}>{data.singer}</Text>
                 </View>
             </View>
             <View style = {styles.imageNowPlay}>
@@ -241,12 +233,12 @@ export default class NowPlay extends Component {
                         borderRadius: 500,
                         transform: [{ rotate: RotateData }],
                     }}
-                    source={require('../images/nowplay_img.png')}
+                    source={{uri:images}}
                 />
             </View>
             <View style = {styles.infoSong}>
-                <Text style = {styles.styleSong}>The Way Home</Text>
-                <Text style = {styles.styleArtist}>{name}</Text>
+                <Text style = {styles.styleSong}>{data.name}</Text>
+                <Text style = {styles.styleArtist}>{data.singer}</Text>
             </View>
             <View style={{marginVertical:30, marginHorizontal:15, flexDirection:'row'}}>
                 <Text style={{color:'white', alignSelf:'center'}}>{currentTimeString}</Text>

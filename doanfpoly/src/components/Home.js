@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList,TouchableOpacity, StatusBar } from 'react-native';
 import NowPlay from './NowPlay';
 import CONFIG from '../config/custom';
+import  SERVICES from '../services/index'
 const listRecommended=[
     {
         id:'1',
@@ -123,6 +124,7 @@ export default class Home extends Component {
             isLoading:true,
             isPlaying:false,
             modalVisible:false,
+            suggest: [],
         }
     }
     
@@ -130,26 +132,24 @@ export default class Home extends Component {
         //To hide the ActionBar/NavigationBar
         header: null,
     };
-    componentDidMount(){
+    componentDidMount = async () => {
         BackHandler.addEventListener('hardwareBackPress', function() {
             // this.onMainScreen and this.goBack are just examples, you need to use your own implementation here
             // Typically you would use the navigator here to go to the last state.
           
             return true;
         });
-        return fetch('http://172.20.10.3/demophp/view')
-        .then((response)=>response.json())
-        .then((responseJson)=>{
+        
+        let response = await SERVICES.getMP3();
+        if(response) {
             this.setState({
-                data:responseJson,
-                isLoading:false
+                data: response,
+                isLoading: false,
 
             })
-            console.log(this.state.data)
-        })
-        .catch((error)=>{
-            console.log(error)
-        });
+        } else {
+            console.log("error")
+        }
     }
     login(){
         this.props.navigation.navigate('MainLogin')
@@ -166,15 +166,27 @@ export default class Home extends Component {
     Music(item){
         this.props.navigation.navigate('Music',{item})
     }
-    showModal = () => {
-        this.setState({
-            modalVisible:true,
-        })
+    showModal = async (item) => {
+        if (this.state.modalVisible == true) {
+            await this.setState({
+                    modalVisible: false,
+                })
+            this.setState({
+                modalVisible: true,
+                suggest: item,
+            })
+        }if (this.state.modalVisible == false) {
+            this.setState({
+                modalVisible: true,
+                suggest: item,
+            })
+        }
+
     }
-    callbackPlaying = ( playing, visible ) => {
+    callbackPlaying = ( visible ) => {
         this.setState({
-            isPlaying: playing,
             modalVisible: visible,
+
         })
     }
     renderRecommend(item) {
@@ -213,10 +225,10 @@ export default class Home extends Component {
         ) 
     }
     renderSuggest(item){
-        const images = 'http://172.20.10.3/' + item.picture;
+        const images = CONFIG.API.URL_GET_ITEM + item.picture;
         return(     
                 <TouchableOpacity style={styles.suggestList}
-                 onPress={() => this.Music(item)}
+                 onPress={() => this.showModal(item)}
                 >
                     <Image source={{uri:images}} style={styles.suggestImage}></Image>
                     <View style={styles.suggestText}>
@@ -310,9 +322,14 @@ export default class Home extends Component {
             </ImageBackground>
             {this.state.modalVisible ? (
                 <NowPlay
-                    name={'dsdsa'}
+                    data = {this.state.suggest}
+                    callbackClose = {this.callbackPlaying}
                 />
             ) : null}
+            {/* {this.state.modalVisible == true &&
+                            <NowPlay
+                    data = {this.state.suggest}
+                />} */}
             </>
         )
     }
