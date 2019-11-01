@@ -49,7 +49,7 @@ API: {
     TIMEOUT: 20000,
     HEADER: {
         Accept: "application/json",
-        "Content-Type": "application/json"
+        "Content-Type": "application/x-www-form-urlencoded"
     },
     HEADER_2: {
         "Content-Type": "text/plain"

@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
-import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native'
+import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native';
+import CONFIG from '../config/custom';
+import SERVICES from '../services/index';
+
 export default class Signup extends Component {
     static navigationOptions = {
         //To hide the ActionBar/NavigationBar
@@ -16,6 +19,16 @@ export default class Signup extends Component {
       }
       login(){
         this.props.navigation.navigate('Login')
+    }
+
+    register = async () => {
+        const {name, username, password} = this.state;
+        let response = await SERVICES.register(name, username, password);
+        if( response == 200 ) {
+            this.props.navigation.navigate('Login');
+        }else {
+            console.log('deo co gi')
+        }
     }
     render() {
         return (
@@ -36,15 +49,14 @@ export default class Signup extends Component {
                         <TextInput
                             style={styles.textInput}
                             placeholder="Name"
-                            onChangeText={(text) => this.setState({name})}
+                            onChangeText={(text) => this.setState({name: text})}
                             value={this.state.name}
                             placeholderTextColor="#404b69"
                         />
                         <TextInput
                             style={styles.textInput}
-                            secureTextEntry={true}
                             placeholder="name@gmail.com"
-                            onChangeText={(text) => this.setState({username})}
+                            onChangeText={(text) => this.setState({username: text})}
                             value={this.state.username}
                             placeholderTextColor="#404b69"
                         />
@@ -52,7 +64,7 @@ export default class Signup extends Component {
                             style={styles.textInput}
                             secureTextEntry={true}
                             placeholder="Password"
-                            onChangeText={(text) => this.setState({password})}
+                            onChangeText={(text) => this.setState({password: text})}
                             value={this.state.password}
                             placeholderTextColor="#404b69"
                         />
@@ -60,14 +72,14 @@ export default class Signup extends Component {
                             style={styles.textInput}
                             secureTextEntry={true}
                             placeholder="Re-type Password"
-                            onChangeText={(text) => this.setState({repassword})}
+                            onChangeText={(text) => this.setState({repassword: text})}
                             value={this.state.repassword}
                             placeholderTextColor="#404b69"
                         />
                     </View>
                     <TouchableOpacity
                         style={styles.buttonLogin}
-                        onPress={() => this.login()}
+                        onPress={() => this.register()}
                     >
                         <Text style={styles.buttonLoginText}>Đăng Ký</Text>
                     </TouchableOpacity>
