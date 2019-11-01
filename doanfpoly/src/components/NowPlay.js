@@ -104,13 +104,13 @@ export default class NowPlay extends Component {
             this.sound.play(this.playComplete);
             this.setState({playState:'playing'});
         }else{
-            const filepath = 'https://data25.chiasenhac.com/downloads/2039/4/2038237-f8896462/32/La%20Ban%20Khong%20The%20Yeu%20-%20Lou%20Hoang.m4a';
+            const filepath = '';
             console.log('[Play]', filepath);
     
             this.sound = new Sound(filepath, '', (error) => {
                 if (error) {
                     console.log('failed to load the sound', error);
-                    Alert.alert('Notice', 'audio file error. (Error code : 1)');
+                    // Alert.alert('Notice', 'audio file error. (Error code : 1)');
                     this.setState({playState:'paused'});
                 }else{
                     this.setState({playState:'playing', duration:this.sound.getDuration()});
