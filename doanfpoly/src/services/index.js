@@ -34,18 +34,20 @@ export default {
 
     
     register: async (name, username, password) => {
-        const formData = new FormData();
-        formData.append('name', name);
-        formData.append('username', username);
-        formData.append('password', password);
+        let formData = {name: name, username: username, password:password};
+        const encodeFormData = (data) => {
+            return Object.keys(data)
+                .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+                .join('&');
+        }
         try {
             let response = await fetch(CONFIG.API.URL+ROUTES.API_REGISTER.url, {
                 method: ROUTES.API_REGISTER.method,
                 headers: CONFIG.API.HEADER,
-                body: formData
+                body: encodeFormData(formData),
             });
-            let responseJson = await response.text();
-            console.log(responseJson)
+            let responseJson = await response.json();
+            console.log(responseJson[0].status)
             return responseJson;
         } catch (err) {
             console.log(err);
