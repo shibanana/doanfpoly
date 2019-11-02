@@ -9,7 +9,7 @@ import Login from './src/components/Login';
 import Signup from './src/components/Signup';
 import Artist from './src/components/Artist';
 import Discover from './src/components/Discover';
-import NowPlay from './src/components/NowPlay';
+import MVNowPlay from './src/components/MVItem/MVNowPlay';
 import mp3 from './src/components/mp3';
 const AppStack = createStackNavigator({
   Main:{
@@ -20,6 +20,7 @@ const AppStack = createStackNavigator({
   },
   Artist:Artist,
   Discover:Discover,
+  MVNowPlay: MVNowPlay
 },{
   headerLayoutPreset: 'center'
 }

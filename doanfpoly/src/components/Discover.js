@@ -122,10 +122,8 @@ export default class Discover extends Component {
         return(
             <ImageBackground source={require('../images/background.png')} style = {styles.container}>
                 <View style = {styles.topBar}>
-                    <View
-                        
-                    >
-                <Icon onPress={()=>this.goBack()} style={{flex:2}} name="md-arrow-back" size={30} color="#fff"/>
+                    <View>
+                        <Icon onPress={()=>this.goBack()} style={{flex:2}} name="md-arrow-back" size={30} color="#fff"/>
                     </View>
                     <View >
                         <Text style={styles.labelTopbar}>{this.state.titleScreen}</Text>

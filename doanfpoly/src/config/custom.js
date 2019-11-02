@@ -18,7 +18,7 @@ import ic_shuffle from '../images/icon/shuffle.png';
 import ic_loop from '../images/icon/exchange.png';
 import ic_down_arrow from '../images/icon/down-arrow.png';
 import loinho from '../images/loinho.mp3';
-
+import bg from '../images/background.png'
 export default{
 /**
  ** IMAGE + ICON IN APP
