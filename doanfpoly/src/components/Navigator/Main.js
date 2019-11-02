@@ -1,15 +1,12 @@
-import React, { Component } from 'react'
-import { Text, View, Image, StyleSheet } from 'react-native'
+import React, { Component } from 'react';
+import { StyleSheet, Image } from 'react-native'
 import { createAppContainer } from 'react-navigation';
-import { createBottomTabNavigator, BottomTabBar } from 'react-navigation-tabs';
+import { createBottomTabNavigator } from 'react-navigation-tabs';
 import CONFIG from '../../config/custom'
 import Home from '../Home';
 import Rank from '../Rank/Rank';
 import Mv from '../Mv/Mv';
 import Personal from '../Pesonal/Personal';
-import NowPlay from '../NowPlay';
-
-const TabBarComponent = props => <BottomTabBar {...props} />
 
 const TabNavigator = createBottomTabNavigator(
   {
@@ -35,7 +32,7 @@ const TabNavigator = createBottomTabNavigator(
         },
     },
     Account:{
-        screen:Personal,
+        screen: Personal,
         navigationOptions:{
             tabBarIcon:({tintColor})=><Image style={styles.iconTab} source={CONFIG.IC_DISC} tintColor={tintColor} />,
             title:'Cá nhân' 
@@ -56,9 +53,6 @@ const TabNavigator = createBottomTabNavigator(
               backgroundColor:'#283149'
           },
           keyboardHidesTabBar: true,
-          tabBarComponent: props => (
-            <NowPlay />
-          ),
       },
   }
 );

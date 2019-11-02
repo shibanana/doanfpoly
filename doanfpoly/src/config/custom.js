@@ -39,9 +39,10 @@ IC_SHUFFLE: ic_shuffle,
 IC_LOOP: ic_loop,
 IC_DOWN_ARROW: ic_down_arrow,
 LOINHO: loinho,
+BG: bg,
 
 /**
- ** API confiugrations
+ ** API configurations
 **/
 API: {
     URL: "http://192.168.1.121/demophp",
@@ -55,4 +56,9 @@ API: {
         "Content-Type": "text/plain"
     }
 },
+
+/**
+ ** DATA USER
+**/
+dataUser:'',
 }
