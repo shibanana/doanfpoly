@@ -24,7 +24,7 @@ export default class Signup extends Component {
     register = async () => {
         const {name, username, password} = this.state;
         let response = await SERVICES.register(name, username, password);
-        if( response == 200 ) {
+        if( response[0].status == 200 ) {
             this.props.navigation.navigate('Login');
         }else {
             console.log('deo co gi')

@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
-import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native'
+import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native';
+import SERVICES from '../services/index';
 export default class Login extends Component {
     static navigationOptions = {
         //To hide the ActionBar/NavigationBar
@@ -13,12 +14,19 @@ export default class Login extends Component {
         };
       }
      
-      singup(){
+    SignUp(){
         this.props.navigation.navigate('Signup')
     }
-    login(){
-        this.props.navigation.navigate('Home')
+    Login = async () => {
+        const {username, password} = this.state;
+        let response = await SERVICES.login(username, password);
+        if (response[0].status == 200) {
+            this.props.navigation.navigate('Home', {dataUser: response})
+        }else {
+            console.log('deo co gi')
+        }
     }
+
     render() {
         return (
             <ImageBackground source={require('../images/background.png')} style={styles.container}>
@@ -29,7 +37,7 @@ export default class Login extends Component {
                         </TouchableOpacity>
                         <TouchableOpacity 
                             style={styles.headerSignup}
-                            onPress={() => this.singup()}
+                            onPress={() => this.SignUp()}
                         >
                             <Text style={styles.headerSignupText}>Đăng ký</Text>
                         </TouchableOpacity>
@@ -38,7 +46,7 @@ export default class Login extends Component {
                         <TextInput
                             style={styles.textInput}
                             placeholder="name@gmail.com"
-                            onChangeText={(text) => this.setState({username})}
+                            onChangeText={(text) => this.setState({username: text})}
                             value={this.state.username}
                             placeholderTextColor="#404b69"
                         />
@@ -46,7 +54,7 @@ export default class Login extends Component {
                             style={styles.textInput}
                             secureTextEntry={true}
                             placeholder="Password"
-                            onChangeText={(text) => this.setState({password})}
+                            onChangeText={(text) => this.setState({password: text})}
                             value={this.state.password}
                             placeholderTextColor="#404b69"
                         />
@@ -56,7 +64,7 @@ export default class Login extends Component {
                     </TouchableOpacity>
                     <TouchableOpacity
                         style={styles.buttonLogin}
-                        onPress={() => this.login()}
+                        onPress={() => this.Login()}
                     >
                         <Text style={styles.buttonLoginText}>Đăng nhập</Text>
                     </TouchableOpacity>

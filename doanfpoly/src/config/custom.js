@@ -42,7 +42,7 @@ LOINHO: loinho,
 BG: bg,
 
 /**
- ** API confiugrations
+ ** API configurations
 **/
 API: {
     URL: "http://192.168.137.239/demophp",
@@ -56,4 +56,9 @@ API: {
         "Content-Type": "text/plain"
     }
 },
+
+/**
+ ** DATA USER
+**/
+dataUser:'',
 }
