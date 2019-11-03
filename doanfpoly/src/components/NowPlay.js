@@ -209,7 +209,7 @@ export default class NowPlay extends Component {
                         <Image style={styles.modalIcon} source={CONFIG.IC_NEXT} tintColor={'#fff'} />
                     </TouchableOpacity>  
                     <TouchableOpacity style={styles.modalMediaButton} onPress={this.closeModal}>
-                        <Image style={styles.modalIcon} source={CONFIG.IC_DISC} tintColor={'#fff'} />
+                        <Image style={styles.modalIcon} source={CONFIG.IC_CLOSE} tintColor={'#fff'} />
                     </TouchableOpacity>            
                 </View>
             </TouchableOpacity>

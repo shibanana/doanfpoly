@@ -78,44 +78,7 @@ const listPlaylist=[
         description:'Playlist by Denis Buroughi',
     },
 ]
-const suggest=[
-    {
-        id:'1',
-        images:require('../images/suggest/suggest-1.jpg'),
-        title:'Una Noche (Versíon Salsa)',
-        singer:'Arjan, Gilberto Santa Rosa',
-    },
-    {
-        id:'2',
-        images:require('../images/suggest/suggest-2.jpg'),
-        title:'Bendecida',
-        singer:'Yeison Jimenez',
-    },
-    {
-        id:'3',
-        images:require('../images/suggest/suggest-3.jpg'),
-        title:'Atrévete',
-        singer:'Nicky Jam, Sech',
-    },
-    {
-        id:'4',
-        images:require('../images/suggest/suggest-4.jpg'),
-        title:'Por un segundo',
-        singer:'Fabio CL',
-    },
-    {
-        id:'5',
-        images:require('../images/suggest/suggest-5.jpg'),
-        title:'Tutu',
-        singer:'Camilo, Pedro Capó',
-    },
-    {
-        id:'6',
-        images:require('../images/suggest/suggest-6.jpg'),
-        title:'Sin Permiso',
-        singer:'Javier Ramirez, Arjan',
-    },
-]
+
 export default class Home extends Component {
     constructor(props){
         super(props);
@@ -152,7 +115,9 @@ export default class Home extends Component {
         }
     }
     login(){
-        this.props.navigation.navigate('MainLogin')
+        if(!CONFIG.dataUser) {
+            this.props.navigation.navigate('MainLogin')
+        }
     }
     Artist(){
         this.props.navigation.navigate('Music')
@@ -183,6 +148,9 @@ export default class Home extends Component {
         }
 
     }
+    showPlaylist = () => {
+        this.props.navigation.navigate('PlaylistItem')
+    }
     callbackPlaying = ( visible ) => {
         this.setState({
             modalVisible: visible,
@@ -192,7 +160,7 @@ export default class Home extends Component {
     renderRecommend(item) {
         return (
             <TouchableOpacity style={styles.recomList}
-            onPress={() => this.showModal()}>
+            onPress={() => this.showPlaylist()}>
             <Image source={item.images} style={styles.listImage}></Image>
             <Text style={styles.listTitle}>{item.title}</Text>
             <Text style={styles.listDescription}>{item.description}</Text>
@@ -326,10 +294,6 @@ export default class Home extends Component {
                     callbackClose = {this.callbackPlaying}
                 />
             ) : null}
-            {/* {this.state.modalVisible == true &&
-                            <NowPlay
-                    data = {this.state.suggest}
-                />} */}
             </>
         )
     }

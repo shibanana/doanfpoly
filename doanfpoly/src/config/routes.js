@@ -9,5 +9,9 @@ export default{
     
     API_LOGIN: { method: 'POST', url: '/login_client.php'},
 
-    API_REGISTER: { method: 'POST', url: '/add_user.php'}
-    }
+    API_REGISTER: { method: 'POST', url: '/add_user.php'},
+
+    API_ADD_PLAYLIST: { method: 'POST', url: '/create_playlist.php'},
+
+    API_VIEW_PLAYLIST: { method: 'POST', url: '/view_playlist.php'},
+}
