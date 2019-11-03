@@ -39,13 +39,14 @@ IC_SHUFFLE: ic_shuffle,
 IC_LOOP: ic_loop,
 IC_DOWN_ARROW: ic_down_arrow,
 LOINHO: loinho,
+BG: bg,
 
 /**
  ** API confiugrations
 **/
 API: {
-    URL: "http://192.168.1.121/demophp",
-    URL_GET_ITEM: "http://192.168.1.121/",
+    URL: "http://192.168.137.239/demophp",
+    URL_GET_ITEM: "http://192.168.137.239/",
     TIMEOUT: 20000,
     HEADER: {
         Accept: "application/json",
