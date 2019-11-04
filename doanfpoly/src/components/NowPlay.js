@@ -155,7 +155,7 @@ class NowPlay extends Component {
     }
 
     closeModal = () => {
-        bottomSheetRef.current.snapTo(1)
+        this.props.callbackClose(false)
     }
     showModal = () => {
         
