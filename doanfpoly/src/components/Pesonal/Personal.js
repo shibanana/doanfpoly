@@ -11,6 +11,9 @@ export default class Personal extends Component {
         }
     }
 
+    showPlaylist = () => {
+        this.props.navigation.navigate('Playlist')
+    }
     render() {
         const { data } = this.state;
         return (
@@ -35,7 +38,7 @@ export default class Personal extends Component {
                         <Text style = {styles.libraryText}>{"Bài hát"}</Text>
                         <Image style = {styles.nextArrowIcon} source ={CONFIG.IC_NEXT_ARROW} tintColor = {'#fff'} />
                     </TouchableOpacity>
-                    <TouchableOpacity style = {styles.libraryItem}>
+                    <TouchableOpacity style = {styles.libraryItem} onPress = {() => this.showPlaylist()}>
                         <Image style = {styles.libraryIcon} source ={CONFIG.IC_PLAYLIST} tintColor = {'#fff'} />
                         <Text style = {styles.libraryText}>{"Playlist"}</Text>
                         <Image style = {styles.nextArrowIcon} source ={CONFIG.IC_NEXT_ARROW} tintColor = {'#fff'} />

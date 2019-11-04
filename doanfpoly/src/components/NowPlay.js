@@ -4,9 +4,12 @@ import Slider from '@react-native-community/slider';
 import CONFIG from '../config/custom';
 import Sound from 'react-native-sound';
 import BottomSheet from 'reanimated-bottom-sheet';
+import { withNavigation } from 'react-navigation';
+
+let bottomSheetRef = React.createRef(<BottomSheet/>);
 const deviceHeight = Dimensions.get('window').height;
 
-export default class NowPlay extends Component {
+class NowPlay extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -15,7 +18,7 @@ export default class NowPlay extends Component {
             playState:'paused', //playing, paused
             playSeconds:0,
             duration:0,
-            modalVisible:true,
+            modalVisible:false,
             transparent: false,
             minimize: false,
             deviceHeight: deviceHeight,
@@ -152,20 +155,18 @@ export default class NowPlay extends Component {
     }
 
     closeModal = () => {
-        this.props.callbackClose(false)
+        bottomSheetRef.current.snapTo(1)
     }
     showModal = () => {
+        
         this.setState({
             minimize: false,
             transparent: false,
         })
     }
-    close = () => {
-        this.sound.stop();
-        this.setState({
-            modalVisible: false,
-            deviceHeight: 50,
-        })
+
+    addPlaylist = () => {
+        this.props.navigation.navigate('ChoosePlaylist', {mp3_id: this.state.data.id})
     }
     
     renderHeader = () => {
@@ -178,7 +179,7 @@ export default class NowPlay extends Component {
         const { data } = this.state;
         const images = CONFIG.API.URL_GET_ITEM+data.picture;
         return (
-            <View style={{flex:1, height:deviceHeight, marginTop:20}}>
+            <View style={{flex:1, height:deviceHeight,}}>
             <TouchableOpacity style={styles.modal} onPress = { () => this.showModal()}>
                 <Image style={styles.modalImg} source={{uri:images}} />
                 <View style={styles.modalText}>
@@ -209,80 +210,89 @@ export default class NowPlay extends Component {
                         <Image style={styles.modalIcon} source={CONFIG.IC_NEXT} tintColor={'#fff'} />
                     </TouchableOpacity>  
                     <TouchableOpacity style={styles.modalMediaButton} onPress={this.closeModal}>
-                        <Image style={styles.modalIcon} source={CONFIG.IC_CLOSE} tintColor={'#fff'} />
+                        <Image style={styles.modalIcon2} source={CONFIG.IC_CLOSE} tintColor={'#fff'} />
                     </TouchableOpacity>            
                 </View>
             </TouchableOpacity>
             <ImageBackground source={require('../images/background.png')} style = {styles.container}>
             <View style={styles.headerModal}>
                 <TouchableOpacity
+                    style = {styles.backButton}
                     onPress = {() => this.closeModal}
                 >
                     <Image style={styles.modalIcon} source = {CONFIG.IC_DOWN_ARROW} tintColor={'#fff'} />
                 </TouchableOpacity>
-                <View>
+                <View style ={{flex:8}}>
                     <Text numberOfLines={1} style={{color:'#fff'}}>{data.name}</Text>
                     <Text style={{color:'#a3a6ae'}}>{data.singer}</Text>
                 </View>
-            </View>
-            <View style = {styles.imageNowPlay}>
-                <Animated.Image
-                    style={{
-                        width: 250,
-                        height: 250,
-                        borderRadius: 500,
-                        transform: [{ rotate: RotateData }],
-                    }}
-                    source={{uri:images}}
-                />
-            </View>
-            <View style = {styles.infoSong}>
-                <Text style = {styles.styleSong}>{data.name}</Text>
-                <Text style = {styles.styleArtist}>{data.singer}</Text>
-            </View>
-            <View style={{marginVertical:30, marginHorizontal:15, flexDirection:'row'}}>
-                <Text style={{color:'white', alignSelf:'center'}}>{currentTimeString}</Text>
-                <Slider
-                    maximumValue = { this.state.duration }
-                    minimumTrackTintColor= { '#3ea512' }
-                    maximumTrackTintColor= { '#fff' }
-                    thumbTintColor = {'#3ea512'}
-                    onSlidingStart= { this.onSliderEditStart }
-                    onSlidingComplete= { this.onSliderEditEnd }
-                    value = { this.state.playSeconds }
-                    onValueChange= { this.onSliderEditing }
-                    style={{flex:1, alignSelf:'center', marginHorizontal:Platform.select({ios:5})}}/>
-                <Text style={{color:'white', alignSelf:'center'}}>{durationString}</Text>
-            </View>
-            <View style = {styles.iconBar}>
-                <TouchableOpacity style={styles.mediaButton}>
-                    <Image style = {styles.shuffleIcon} source={CONFIG.IC_SHUFFLE} tintColor='#fff' />
+                <TouchableOpacity
+                    style = {styles.addPlaylist}
+                    onPress = {() => this.addPlaylist()}
+                >
+                    <Image style={styles.modalIcon} source = {CONFIG.IC_UNLIKE} tintColor={'#fff'} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.mediaButton} onPress={this.jumpPrev15Seconds} >
-                    <Image style = {styles.previousIcon} source={CONFIG.IC_PREVIOUS} tintColor='#fff' />
-                </TouchableOpacity>
-                { this.state.playState == 'playing' &&
-                    <TouchableOpacity 
-                        onPress={this.pause} 
-                        style={styles.mediaButton} 
-                        >
-                        <Image style = {styles.playIcon} source={CONFIG.IC_PAUSE} tintColor='#fff' />
+            </View>
+            <View style = {{flex:1, justifyContent: 'center'}}>
+                <View style = {styles.imageNowPlay}>
+                    <Animated.Image
+                        style={{
+                            width: 250,
+                            height: 250,
+                            borderRadius: 500,
+                            transform: [{ rotate: RotateData }],
+                        }}
+                        source={{uri:images}}
+                    />
+                </View>
+                <View style = {styles.infoSong}>
+                    <Text style = {styles.styleSong}>{data.name}</Text>
+                    <Text style = {styles.styleArtist}>{data.singer}</Text>
+                </View>
+                <View style={{marginVertical:30, marginHorizontal:15, flexDirection:'row'}}>
+                    <Text style={{color:'white', alignSelf:'center'}}>{currentTimeString}</Text>
+                    <Slider
+                        maximumValue = { this.state.duration }
+                        minimumTrackTintColor= { '#3ea512' }
+                        maximumTrackTintColor= { '#fff' }
+                        thumbTintColor = {'#3ea512'}
+                        onSlidingStart= { this.onSliderEditStart }
+                        onSlidingComplete= { this.onSliderEditEnd }
+                        value = { this.state.playSeconds }
+                        onValueChange= { this.onSliderEditing }
+                        style={{flex:1, alignSelf:'center', marginHorizontal:Platform.select({ios:5})}}/>
+                    <Text style={{color:'white', alignSelf:'center'}}>{durationString}</Text>
+                </View>
+                <View style = {styles.iconBar}>
+                    <TouchableOpacity style={styles.mediaButton}>
+                        <Image style = {styles.shuffleIcon} source={CONFIG.IC_SHUFFLE} tintColor='#fff' />
                     </TouchableOpacity>
-                    }
-                { this.state.playState == 'paused' &&
-                    <TouchableOpacity 
-                        onPress={this.play}
-                        style={styles.mediaButton}
-                        >
-                        <Image style = {styles.playIcon} source={CONFIG.IC_PLAY} tintColor='#fff' />
+                    <TouchableOpacity style={styles.mediaButton} onPress={this.jumpPrev15Seconds} >
+                        <Image style = {styles.previousIcon} source={CONFIG.IC_PREVIOUS} tintColor='#fff' />
                     </TouchableOpacity>
-                    }
-                <TouchableOpacity style={styles.mediaButton} onPress={this.jumpNext15Seconds} >
-                    <Image style = {styles.previousIcon} source={CONFIG.IC_NEXT} tintColor='#fff' />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.mediaButton} >
-                    <Image style = {styles.shuffleIcon} source={CONFIG.IC_LOOP} tintColor='#fff' />
-                </TouchableOpacity>
+                    { this.state.playState == 'playing' &&
+                        <TouchableOpacity 
+                            onPress={this.pause} 
+                            style={styles.mediaButton} 
+                            >
+                            <Image style = {styles.playIcon} source={CONFIG.IC_PAUSE} tintColor='#fff' />
+                        </TouchableOpacity>
+                        }
+                    { this.state.playState == 'paused' &&
+                        <TouchableOpacity 
+                            onPress={this.play}
+                            style={styles.mediaButton}
+                            >
+                            <Image style = {styles.playIcon} source={CONFIG.IC_PLAY} tintColor='#fff' />
+                        </TouchableOpacity>
+                        }
+                    <TouchableOpacity style={styles.mediaButton} onPress={this.jumpNext15Seconds} >
+                        <Image style = {styles.previousIcon} source={CONFIG.IC_NEXT} tintColor='#fff' />
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.mediaButton} >
+                        <Image style = {styles.shuffleIcon} source={CONFIG.IC_LOOP} tintColor='#fff' />
+                    </TouchableOpacity>
+                </View>
             </View>
         </ImageBackground>
         </View>
@@ -290,20 +300,22 @@ export default class NowPlay extends Component {
     }
     
     render() {
+
         return(
             <BottomSheet
-                snapPoints = {[deviceHeight, 68]}
+                ref={bottomSheetRef}
+                snapPoints = {[deviceHeight, 48]}
                 renderHeader = {this.renderHeader}
             />
 
         )
     }
 }
-
+export default withNavigation(NowPlay);
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center'
+        justifyContent: 'flex-start'
     },
     topBar: {
         flexDirection: 'row',
@@ -317,7 +329,6 @@ const styles = StyleSheet.create({
     },
     imageNowPlay: {
         alignItems: "center",
-        marginTop: 20
     },
     infoSong: {
         alignItems: "center",
@@ -381,6 +392,12 @@ const styles = StyleSheet.create({
         width: 25,
         height: 25,
     },
+    modalIcon2:{
+        width: 15,
+        height: 15,
+        paddingLeft: 5,
+ 
+    },
     modalMedia:{
         flex:4,
         flexDirection:'row',
@@ -389,8 +406,19 @@ const styles = StyleSheet.create({
     },
     modalMediaButton:{
         paddingHorizontal: 5,
+        alignSelf: 'center',
     },
     headerModal:{
-        flexDirection: 'row'
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginTop: 30
+    }, 
+    backButton: {
+        alignSelf: 'center',
+        paddingHorizontal: 10,
+    },
+    addPlaylist: {
+        alignSelf: 'center',
+        paddingRight: 10
     }
 })

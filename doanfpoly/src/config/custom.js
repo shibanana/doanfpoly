@@ -67,8 +67,8 @@ PLAYLIST: playlist,
  ** API configurations
 **/
 API: {
-    URL: "http://192.168.137.239/demophp",
-    URL_GET_ITEM: "http://192.168.137.239/",
+    URL: "http://192.168.1.7/demophp",
+    URL_GET_ITEM: "http://192.168.1.7/",
     TIMEOUT: 20000,
     HEADER: {
         Accept: "application/json",

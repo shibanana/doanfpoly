@@ -13,6 +13,7 @@ import MVNowPlay from './src/components/MVItem/MVNowPlay';
 import mp3 from './src/components/mp3';
 import Playlist from './src/components/Playlist/Playlist';
 import PlaylistItem from './src/components/PlaylistItem/PlaylistItem';
+import ChoosePlaylist from './src/components/ChoosePlaylist/ChoosePlaylist';
 const AppStack = createStackNavigator({
   Main:{
     screen:Main,
@@ -24,7 +25,8 @@ const AppStack = createStackNavigator({
   Discover:Discover,
   MVNowPlay: MVNowPlay,
   Playlist: Playlist,
-  PlaylistItem: PlaylistItem
+  PlaylistItem: PlaylistItem,
+  ChoosePlaylist: ChoosePlaylist
 },{
   headerLayoutPreset: 'center'
 }
@@ -46,7 +48,7 @@ export default createAppContainer(
       Auth:AuthStack,
     },
     {
-      initialRouteName:'App',
+      initialRouteName:'Auth',
     }
   ))
 

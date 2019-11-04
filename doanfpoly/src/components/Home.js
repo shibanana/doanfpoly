@@ -84,7 +84,7 @@ export default class Home extends Component {
         super(props);
         this.state={
             data:[],
-            isLoading:true,
+            isLoading:false,
             isPlaying:false,
             modalVisible:false,
             suggest: [],
@@ -107,9 +107,10 @@ export default class Home extends Component {
         if(response) {
             this.setState({
                 data: response,
-                isLoading: false,
+                isLoading: true,
 
             })
+            console.log('ok')
         } else {
             console.log("error")
         }
@@ -274,7 +275,7 @@ export default class Home extends Component {
                                 </TouchableOpacity>
                             </View>
                         </View>
-                        {!this.state.isLoading ? (
+                        {this.state.isLoading ? (
                             <View style={styles.recomListAll}>
                             <Text style={styles.recomListTitle}>Gợi Ý</Text>
                             <FlatList

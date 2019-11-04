@@ -3,23 +3,23 @@ import { Text, View, ImageBackground, StyleSheet, TextInput, TouchableOpacity, D
 import CONFIG from '../../config/custom';
 import Modal from "react-native-modal";
 import SERVICES from '../../services/index';
+import { NavigationActions } from 'react-navigation';
 const width = Dimensions.get('window').width;
-export default class Playlist extends Component {
-
+export default class ChoosePlaylist extends Component {
     constructor(props){
         super(props);
         this.state = {
-            isVisible: false,
+            isVisible: props.isVisible,
             playlistName: '',
             userID: CONFIG.dataUser[0].id,
             userName: CONFIG.dataUser[0].name,
             isLoading: false,
             dataPlaylist: [],
+            mp3_id: props.navigation.state.params.mp3_id,
         }
     }
-
     static navigationOptions = ({ navigation }) => ({
-        title: 'PLAYLIST',
+        title: 'CHỌN PLAYLIST',
         headerStyle:{
             backgroundColor:'#283149',
         },
@@ -31,7 +31,6 @@ export default class Playlist extends Component {
         },
         headerLayoutPreset: 'center'
     });
-
     // LIFECYCLE
     componentDidMount = () => {
         this.viewPlaylist()
@@ -48,18 +47,6 @@ export default class Playlist extends Component {
             isVisible: false,
         })
     }
-
-    addPlaylist = async () => {
-        let response = await SERVICES.addPlaylist(this.state.playlistName, this.state.userID);
-        if (response.status == 200){
-            console.log('co kqua')
-        } else {
-            console.log('deo co gi')
-        }
-        this.closeModal();
-        this.viewPlaylist();
-    }
-
     viewPlaylist = async () => {
         let response = await SERVICES.viewPlaylist(this.state.userID);
         if (response){
@@ -70,17 +57,14 @@ export default class Playlist extends Component {
             console.log('deo co gi')
         }
     }
-
-    detailPlaylist = async (playlist_id) => {
-        let response = await fetch(SERVICES.viewDetailPlaylist(playlist_id))
-        if(response){
-            this.props.navigation.navigate('PlaylistItem', {data:response})
-        }
+    addMp3ToPlaylist =  (playlist_id) => {
+        fetch(SERVICES.addMp3Playlist(this.state.mp3_id, playlist_id));
+        this.props.navigation.dispatch(NavigationActions.back());
+        console.log('ok rui')
     }
-
     renderPlaylist = ({item, index}) => {
         return (
-            <TouchableOpacity style = {styles.playlistItem} onPress = {() => this.detailPlaylist(item.playlist_id)}  >
+            <TouchableOpacity style = {styles.playlistItem} onPress = {() => this.addMp3ToPlaylist(item.playlist_id)} >
                 <Image style = {styles.itemImg} source = {CONFIG.PLAYLIST} />
                 <View style = {styles.itemContent}>
                     <Text style = {styles.itemName}>{item.playlist_name}</Text>
@@ -91,65 +75,25 @@ export default class Playlist extends Component {
     }
     render() {
         return (
-            <ImageBackground
-                style = {styles.container}
-                source = {CONFIG.BG}
-            >
-                <TextInput
-                    style={styles.topBarInput}
-                    placeholder="Tìm kiếm"
-                    placeholderTextColor = "#a3a6ae"
-                />
-                <TouchableOpacity
-                    style = {styles.playlistButton}
-                    onPress = {() => this.showModal()}
+                <ImageBackground
+                    style = {styles.container}
+                    source = {CONFIG.BG}
                 >
-                    <Text style = {styles.textButton}>{"TẠO PLAYLIST"}</Text>
-                </TouchableOpacity>
-                <Modal
-                    isVisible= {this.state.isVisible}
-                    animationIn = {'slideInDown'}
-                    animationOut = {'slideOutUp'}
-                    avoidKeyboard = {true}
-                    backdropOpacity = {0.4}
-                >
-                    <View style = {styles.modal}>
-                        <Text style = {styles.modalTitle}>TẠO PLAYLIST</Text>
-                        <TextInput
-                            placeholder="Tên playlist"
-                            placeholderTextColor = "#fff"
-                            style = {styles.modalInput}
-                            onChangeText={(text) => this.setState({playlistName: text})}
-                            value={this.state.playlistName}
-                        />
-                        <View style = {styles.modalButton}>
-                            <TouchableOpacity
-                                onPress = {() => this.closeModal()}
-                                style = {styles.modalCancel}
-                            >
-                                <Text style = {styles.textCancel}>{"HỦY BỎ"}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                onPress = {() => this.addPlaylist()}
-                                style = {styles.modalAccept}
-                            >
-                                <Text style = {styles.textAccept}>{"TIẾP TỤC"}</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                    </View>
-                </Modal>
-                <FlatList
-                    data = {this.state.dataPlaylist}
-                    renderItem = {({item, index}) => this.renderPlaylist({item, index})}
-                    keyExtractor = {item => item.playlist_id}
-                    style = {styles.list}
-                 />
+                    <TextInput
+                        style={styles.topBarInput}
+                        placeholder={this.state.mp3_id}
+                        placeholderTextColor = "#a3a6ae"
+                    />
+                    <FlatList
+                        data = {this.state.dataPlaylist}
+                        renderItem = {({item, index}) => this.renderPlaylist({item, index})}
+                        keyExtractor = {item => item.playlist_id}
+                        style = {styles.list}
+                    />
             </ImageBackground>
         )
     }
 }
-
 const styles = StyleSheet.create({
     container: {
         flex:1
@@ -238,5 +182,5 @@ const styles = StyleSheet.create({
     },
     list: {
         margin: 10,
-    }
+    },
 })

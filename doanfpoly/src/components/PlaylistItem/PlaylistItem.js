@@ -33,12 +33,12 @@ export default class PlaylistItem extends Component {
     renderPlaylist = ({item, index}) => {
         return (
             <TouchableOpacity style = {styles.itemPlaylist}>
-                <Text style = {styles.itemIndex}>{index}</Text>
+                <Text style = {styles.itemIndex}>{index+1}</Text>
                 <View style = {styles.itemInfo}>
-                    <Text>{item.name}</Text>
-                    <Text>{item.singer}</Text>
+                    <Text style = {styles.infoSong}>{item.name}</Text>
+                    <Text style = {styles.infoSinger}>{item.singer}</Text>
                 </View>
-                <Image style = {styles.itemIcon} source = {CONFIG.IC_MORE} tintColor />
+                <Image style = {styles.itemIcon} source = {CONFIG.IC_MORE} tintColor = {'#fff'} />
             </TouchableOpacity>
         )
     }
@@ -84,6 +84,7 @@ const styles = StyleSheet.create({
         position: 'relative',
         backgroundColor: '#000',
         opacity: 1,
+        marginBottom: 30,
     },
     headerInfo: {
         position: 'absolute',
@@ -154,12 +155,24 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     itemIndex: {
-        flex:1,
+        alignSelf: 'center',
+        color: '#a3a6ae',
+        paddingHorizontal: 15
     },
     itemInfo: {
         flex: 8,
+        alignSelf: 'center'
+    },
+    infoSong: {
+        color: '#fff',
+        fontSize: 16
+    },
+    infoSinger: {
+        color: '#a3a6ae'
     },
     itemIcon: {
-        flex: 1,
+        width: 25, 
+        height: 25,
+        alignSelf: 'center'
     }
 })

@@ -17,9 +17,10 @@ export default {
                 headers: CONFIG.API.HEADER,
             });
             let responseJson = await response.json();
+            console.log(responseJson)
             return responseJson;
         } catch (err) {
-            return null
+            console.log(err)
         }
     },
 
@@ -32,6 +33,7 @@ export default {
                 body: encodeFormData(formData),
             });
             let responseJson = await response.json();
+            console.log(responseJson);
             CONFIG.dataUser = responseJson;
             return responseJson;
         } catch (err) {
@@ -79,6 +81,41 @@ export default {
         try {
             let response = await fetch(CONFIG.API.URL+ROUTES.API_VIEW_PLAYLIST.url, {
                 method: ROUTES.API_VIEW_PLAYLIST.method,
+                headers: CONFIG.API.HEADER,
+                body: encodeFormData(formData),
+            });
+            let responseJson = await response.json();
+            console.log(responseJson);
+            return responseJson;
+        } catch (err) {
+            console.log(err);
+        }
+    },
+
+    addMp3Playlist: async (mp3_id, playlist_id) => {
+        let mp3_id_convert = parseInt(mp3_id, 10);
+        let playlist_id_convert = parseInt(playlist_id, 10);
+        let formData = {mp3_id: mp3_id_convert, playlist_id: playlist_id_convert};
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_ADD_MP3_PLAYLIST.url, {
+                method: ROUTES.API_ADD_MP3_PLAYLIST.method,
+                headers: CONFIG.API.HEADER,
+                body: encodeFormData(formData),
+            });
+            let responseJson = await response.json();
+            console.log(responseJson[0]);
+            return responseJson[0];
+        } catch (err) {
+            console.log(err);
+        }
+    },
+
+    viewDetailPlaylist: async (playlist_id) => {
+        let playlist_id_convert = parseInt(playlist_id, 10);
+        let formData = {playlist_id: playlist_id_convert};
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_VIEW_DETAIL_PLAYLIST.url, {
+                method: ROUTES.API_VIEW_DETAIL_PLAYLIST.method,
                 headers: CONFIG.API.HEADER,
                 body: encodeFormData(formData),
             });
