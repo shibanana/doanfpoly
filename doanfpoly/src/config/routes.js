@@ -17,5 +17,7 @@ export default{
 
     API_ADD_MP3_PLAYLIST: { method: 'POST', url: '/add_mp3_playlist.php'},
 
-    API_VIEW_DETAIL_PLAYLIST: { method: 'POST', url: 'view_playlist_detail.php'},
+    API_VIEW_DETAIL_PLAYLIST: { method: 'POST', url: '/view_playlist_detail.php'},
+
+    API_UPDATE_VIEW_MP3: { method: 'POST', url: '/update_view_mp3.php'},
 }

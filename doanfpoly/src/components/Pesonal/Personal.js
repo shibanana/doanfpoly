@@ -14,6 +14,9 @@ export default class Personal extends Component {
     showPlaylist = () => {
         this.props.navigation.navigate('Playlist')
     }
+    logout= () => {
+        this.props.navigation.navigate('Auth')
+    }
     render() {
         const { data } = this.state;
         return (
@@ -65,7 +68,9 @@ export default class Personal extends Component {
                         <Text style = {styles.libraryText}>{"Danh sách chặn"}</Text>
                         <Image style = {styles.nextArrowIcon} source ={CONFIG.IC_NEXT_ARROW} tintColor = {'#fff'} />
                     </TouchableOpacity>
-                    <TouchableOpacity style = {styles.libraryItemLogout}>
+                    <TouchableOpacity style = {styles.libraryItemLogout}
+                        
+                    >
                         <Image style = {styles.libraryIcon} source ={CONFIG.IC_LOGOUT} tintColor = {'#fff'} />
                         <Text style = {styles.libraryText}>{"Đăng xuất tài khoản"}</Text>
                     </TouchableOpacity>

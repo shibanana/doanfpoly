@@ -1,30 +1,30 @@
 import React, { Component } from 'react'
 import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList,TouchableOpacity, StatusBar } from 'react-native';
-import NowPlay from './NowPlay';
-import CONFIG from '../config/custom';
-import  SERVICES from '../services/index'
+import NowPlay from '../NowPlay';
+import CONFIG from '../../config/custom';
+import  SERVICES from '../../services/index'
 const listRecommended=[
     {
         id:'1',
-        images:require('../images/recommended/recom-list.png'),
+        images:require('../../images/recommended/recom-list.png'),
         title:'The RockiLand',
         description:'Playlist by Renee Zw',
     },
     {
         id:'2',
-        images:require('../images/recommended/recom-list2.png'),
+        images:require('../../images/recommended/recom-list2.png'),
         title:'The Taylor',
         description:'Playlist by Renee Zw',
     },
     {
         id:'3',
-        images:require('../images/recommended/recom-list.png'),
+        images:require('../../images/recommended/recom-list.png'),
         title:'The Justin',
         description:'Playlist by Renee Zw',
     },
     {
         id:'4',
-        images:require('../images/recommended/recom-list2.png'),
+        images:require('../../images/recommended/recom-list2.png'),
         title:'The Shiba',
         description:'Playlist by Renee Zw',
     },
@@ -33,47 +33,47 @@ const listRecommended=[
 const listSinger=[
     {
         id:'1',
-        images:require('../images/singer/singer.png'),
+        images:require('../../images/singer/singer.png'),
         singerName:'Alicia Q'
     },
     {
         id:'2',
-        images:require('../images/singer/singer2.png'),
+        images:require('../../images/singer/singer2.png'),
         singerName:'Lana Del Roj'
     },
     {
         id:'3',
-        images:require('../images/singer/singer3.png'),
+        images:require('../../images/singer/singer3.png'),
         singerName:'Camilla Nabilla'
     },
     {
         id:'4',
-        images:require('../images/singer/singer.png'),
+        images:require('../../images/singer/singer.png'),
         singerName:'Alicia Q'
     },
 ]
 const listPlaylist=[
     {
         id:'1',
-        images:require('../images/hotplaylist/hotplaylist-1.png'),
+        images:require('../../images/hotplaylist/hotplaylist-1.png'),
         title:'Summer Time',
         description:'Playlist by Renee Zwalger',
     },
     {
         id:'2',
-        images:require('../images/hotplaylist/hotplaylist-2.png'),
+        images:require('../../images/hotplaylist/hotplaylist-2.png'),
         title:'Nature Accoustic',
         description:'Playlist by Denis Buroughi',
     },
     {
         id:'3',
-        images:require('../images/hotplaylist/hotplaylist-3.png'),
+        images:require('../../images/hotplaylist/hotplaylist-3.png'),
         title:'Weekly Blues',
         description:'Playlist by Renee Zwalger',
     },
     {
         id:'4',
-        images:require('../images/hotplaylist/hotplaylist-4.png'),
+        images:require('../../images/hotplaylist/hotplaylist-4.png'),
         title:'Coffee Jaazy',
         description:'Playlist by Denis Buroughi',
     },
@@ -84,11 +84,14 @@ export default class Home extends Component {
         super(props);
         this.state={
             data:[],
+            dataSearch:[],
             isLoading:false,
             isPlaying:false,
             modalVisible:false,
             suggest: [],
+            isSearching: false,
         }
+        this.arrayHolder=[]
     }
     
     static navigationOptions = {
@@ -110,6 +113,7 @@ export default class Home extends Component {
                 isLoading: true,
 
             })
+            this.arrayHolder=response
             console.log('ok')
         } else {
             console.log("error")
@@ -133,6 +137,7 @@ export default class Home extends Component {
         this.props.navigation.navigate('Music',{item})
     }
     showModal = async (item) => {
+        this.updateViewMp3(item.id);
         if (this.state.modalVisible == true) {
             await this.setState({
                     modalVisible: false,
@@ -149,15 +154,27 @@ export default class Home extends Component {
         }
 
     }
+    updateViewMp3 = async (mp3_id) => {
+        let response = await SERVICES.updateViewMp3(mp3_id);
+    }
     showPlaylist = () => {
         this.props.navigation.navigate('PlaylistItem')
     }
-    callbackPlaying = ( visible ) => {
-        this.setState({
-            modalVisible: visible,
 
-        })
+    onFocusTextInput = () => {
+        this.setState({
+            isSearching: true,
+        });
     }
+    searchFilterFunction = (text) => {    
+        const newData = this.arrayHolder.filter(item => {      
+            const itemData = item.name ? item.name.toUpperCase() : ''.toUpperCase();
+           const textData = text.toUpperCase();
+            
+           return itemData.indexOf(textData) > -1;    
+        });
+        this.setState({ dataSearch: newData });  
+    };
     renderRecommend(item) {
         return (
             <TouchableOpacity style={styles.recomList}
@@ -213,18 +230,30 @@ export default class Home extends Component {
         return (
             <>
             <StatusBar backgroundColor={'#283149'} /> 
-            <ImageBackground source={require('../images/background.png')} style={styles.container}>
+            <ImageBackground source={require('../../images/background.png')} style={styles.container}>
                     <View style={styles.topbar}>
                         <TouchableOpacity style={styles.topBarImages} onPress={() => this.login()}>
-                            <Image source={require('../images/user.png')} style={{width: 40, height: 40}}></Image>
+                            <Image source={require('../../images/user.png')} style={{width: 40, height: 40}}></Image>
                         </TouchableOpacity>
                         <TextInput
                             style={styles.topBarInput}
                             placeholder="Tìm kiếm"
                             placeholderTextColor = "#a3a6ae"
+                            onChangeText={text => this.searchFilterFunction(text)}
+                            onFocus={this.onFocusTextInput}
                         />
                     </View>
-                    <ScrollView style={flex=1}
+                    {this.state.isSearching ? (
+                        <View style={{flex:1}}>
+                        <FlatList
+                            data={this.state.dataSearch}
+                            renderItem={({item,index})=>this.renderSuggest(item)}
+                            keyExtractor={item=>item.id}
+                            scrollEnabled={false}
+                        /> 
+                        </View>
+                    ) : (
+                        <ScrollView style={flex=1}
                         showsVerticalScrollIndicator={false}
                     >
                         <View style={styles.recomListAll}>
@@ -288,11 +317,12 @@ export default class Home extends Component {
                         ) : null}
 
                     </ScrollView>
+                    )}
+
             </ImageBackground>
             {this.state.modalVisible ? (
                 <NowPlay
                     data = {this.state.suggest}
-                    callbackClose = {this.callbackPlaying}
                 />
             ) : null}
             </>

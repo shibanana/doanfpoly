@@ -72,15 +72,19 @@ export default class Playlist extends Component {
     }
 
     detailPlaylist = async (playlist_id) => {
-        let response = await fetch(SERVICES.viewDetailPlaylist(playlist_id))
-        if(response){
-            this.props.navigation.navigate('PlaylistItem', {data:response})
-        }
+        this.props.navigation.navigate('PlaylistItem', {id:playlist_id})
     }
+
+    // detailPlaylist =  () => {
+    //     this.props.navigation.navigate('PlaylistItem')
+    // }
 
     renderPlaylist = ({item, index}) => {
         return (
-            <TouchableOpacity style = {styles.playlistItem} onPress = {() => this.detailPlaylist(item.playlist_id)}  >
+            <TouchableOpacity 
+                style = {styles.playlistItem} 
+                onPress = {() => this.detailPlaylist(item.playlist_id)}  
+            >
                 <Image style = {styles.itemImg} source = {CONFIG.PLAYLIST} />
                 <View style = {styles.itemContent}>
                     <Text style = {styles.itemName}>{item.playlist_name}</Text>

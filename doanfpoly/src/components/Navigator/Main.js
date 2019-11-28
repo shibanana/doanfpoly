@@ -3,7 +3,7 @@ import { StyleSheet, Image } from 'react-native'
 import { createAppContainer } from 'react-navigation';
 import { createBottomTabNavigator } from 'react-navigation-tabs';
 import CONFIG from '../../config/custom'
-import Home from '../Home';
+import Home from '../Home/Home';
 import Rank from '../Rank/Rank';
 import Mv from '../Mv/Mv';
 import Personal from '../Pesonal/Personal';

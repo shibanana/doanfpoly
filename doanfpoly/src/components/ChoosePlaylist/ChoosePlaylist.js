@@ -58,7 +58,7 @@ export default class ChoosePlaylist extends Component {
         }
     }
     addMp3ToPlaylist =  (playlist_id) => {
-        fetch(SERVICES.addMp3Playlist(this.state.mp3_id, playlist_id));
+        SERVICES.addMp3Playlist(this.state.mp3_id, playlist_id);
         this.props.navigation.dispatch(NavigationActions.back());
         console.log('ok rui')
     }

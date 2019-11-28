@@ -154,16 +154,6 @@ class NowPlay extends Component {
         return ((h<10?'0'+h:h) + ':' + (m<10?'0'+m:m) + ':' + (s<10?'0'+s:s));
     }
 
-    closeModal = () => {
-        this.props.callbackClose(false)
-    }
-    showModal = () => {
-        
-        this.setState({
-            minimize: false,
-            transparent: false,
-        })
-    }
 
     addPlaylist = () => {
         this.props.navigation.navigate('ChoosePlaylist', {mp3_id: this.state.data.id})
@@ -180,7 +170,10 @@ class NowPlay extends Component {
         const images = CONFIG.API.URL_GET_ITEM+data.picture;
         return (
             <View style={{flex:1, height:deviceHeight,}}>
-            <TouchableOpacity style={styles.modal} onPress = { () => this.showModal()}>
+            <TouchableOpacity 
+                style={styles.modal}
+                onPress = {() => bottomSheetRef.current.snapTo(0)}
+            >
                 <Image style={styles.modalImg} source={{uri:images}} />
                 <View style={styles.modalText}>
                     <Text numberOfLines={1} style={{color:'#fff'}}>{data.name}</Text>
@@ -218,7 +211,7 @@ class NowPlay extends Component {
             <View style={styles.headerModal}>
                 <TouchableOpacity
                     style = {styles.backButton}
-                    onPress = {() => this.closeModal}
+                    onPress = {() => bottomSheetRef.current.snapTo(1)}
                 >
                     <Image style={styles.modalIcon} source = {CONFIG.IC_DOWN_ARROW} tintColor={'#fff'} />
                 </TouchableOpacity>

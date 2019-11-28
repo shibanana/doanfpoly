@@ -121,9 +121,27 @@ export default {
             });
             let responseJson = await response.json();
             console.log(responseJson);
-            return responseJson;
+            console.log(playlist_id_convert)
+            return responseJson
         } catch (err) {
             console.log(err);
         }
     },
+
+    updateViewMp3 : async (mp3_id) => {
+        let mp3_id_convert = parseInt(mp3_id, 10);
+        let formData = {mp3_id: mp3_id_convert};
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_UPDATE_VIEW_MP3.url, {
+                method: ROUTES.API_UPDATE_VIEW_MP3.method,
+                headers: CONFIG.API.HEADER,
+                body: encodeFormData(formData),
+            });
+            let responseJson = await response.json();
+            console.log(responseJson);
+            return responseJson;
+        } catch (err) {
+            console.log(err);
+        }
+    }
 }

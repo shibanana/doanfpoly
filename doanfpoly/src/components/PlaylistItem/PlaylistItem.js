@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Text, View, StatusBar, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Dimensions, Image } from 'react-native'
 import CONFIG from '../../config/custom';
-
+import SERVICES from '../../services/index';
 const width = Dimensions.get('window').width;
 const data = [
     {
@@ -21,11 +21,27 @@ const data = [
     },
 ]
 export default class PlaylistItem extends Component {
-
+    constructor(props){
+        super(props);
+        this.state = {
+            isLoading: false,
+            data: [],
+        }
+    }
     static navigationOptions = ({ navigation }) => ({
-        header: null
+        header: null,
     });
 
+    componentDidMount = async () => {
+        console.log(this.props.navigation.state.params.id)
+        let response = await SERVICES.viewDetailPlaylist(this.props.navigation.state.params.id);
+        if(response){
+            this.setState({
+                data: response,
+                isLoading: true,
+            })
+        }
+    }
     goBack = () => {
         this.props.navigation.navigate('Playlist')
     }
@@ -65,11 +81,15 @@ export default class PlaylistItem extends Component {
                         <Text style = {styles.randomText} >PHÁT NGẪU NHIÊN</Text>
                     </TouchableOpacity>
                 </ImageBackground>
-                <FlatList
-                    data = {data}
+                {this.state.isLoading ? (
+                    <FlatList
+                    data = {this.state.data}
                     renderItem = {({item, index}) => this.renderPlaylist({item, index})}
-                    keyExtractor = {item => item.id}
+                    keyExtractor={(item, index) => 'key'+index}
+                    extraData={this.state}
                  />
+                ) : null}
+
             </ImageBackground>
         )
     }
