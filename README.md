@@ -1,2 +1,3 @@
 # doanfpoly
-dit con me tui m
+read me, read me.
+kiss me, kiss me.
