@@ -69,7 +69,7 @@ export default class Personal extends Component {
                         <Image style = {styles.nextArrowIcon} source ={CONFIG.IC_NEXT_ARROW} tintColor = {'#fff'} />
                     </TouchableOpacity>
                     <TouchableOpacity style = {styles.libraryItemLogout}
-                        
+                        onPress={()=> this.logout()}
                     >
                         <Image style = {styles.libraryIcon} source ={CONFIG.IC_LOGOUT} tintColor = {'#fff'} />
                         <Text style = {styles.libraryText}>{"Đăng xuất tài khoản"}</Text>

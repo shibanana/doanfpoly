@@ -2,60 +2,95 @@ import React, { Component } from 'react'
 import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native'
 import Icon from 'react-native-vector-icons/Ionicons'
 import { FlatList } from 'react-native-gesture-handler';
-const artistList=[
-    {
-        id:'1',
-        name:'The Way Home',
-        time:'3:30'
-    },
-    {
-        id:'2',
-        name:'Please..',
-        time:'3:30'
-    },
-    {
-        id:'3',
-        name:'Rainny Day',
-        time:'3:30'
-    },
-    {
-        id:'4',
-        name:'Fantasy',
-        time:'3:30'
-    },
-    {
-        id:'5',
-        name:'Better Than You',
-        time:'3:30'
-    },
-    {
-        id:'6',
-        name:'See You Again',
-        time:'3:30'
-    },
-    {
-        id:'7',
-        name:'Good For You',
-        time:'3:30'
-    },
-]
+import NowPlay from './NowPlay'
+import CONFIG from '../config/custom';
+import SERVICES from '../services/index';
+
 export default class Artist extends Component {
-    static navigationOptions = {
-        //To hide the ActionBar/NavigationBar
-        header: null,
-    };
+
+    constructor(props){
+        super(props);
+        this.state = {
+            isLoading: false,
+            data: [],
+            modalVisible: false,
+        }
+    }
+
+    componentDidMount = async () =>{
+       const singer = this.props.navigation.state.params.singerData.singer;
+       let response = await SERVICES.viewMp3Singer(singer);
+       if (response) {
+           this.setState({
+               isLoading: true,
+               data: response
+           })
+       }
+    }
+    /** HEADER CONFIGURATION **/
+    static navigationOptions = ({ navigation, screenProps }) => ({
+        title: 'Artist',
+        headerTintColor: '#fff',
+        headerTransparent: true,
+        headerStyle: {
+            backgroundColor: 'transparent',
+            // marginTop: DEVICE.OS === 'ios' ? 40 : 20, 
+        },
+        headerTitleStyle:{
+            fontSize: 22,
+            fontWeight:'bold'
+        },
+        headerLeft: <TouchableOpacity style={{paddingLeft:15, alignItems: 'center'}} onPress={() => navigation.goBack()}>
+                        <Icon name="md-arrow-back" size={30} color="#fff"/>
+                    </TouchableOpacity>,
+        headerRight:<TouchableOpacity style={{paddingRight:15, alignItems: 'center'}}>
+                        <Icon name="md-search" size={30} color="#fff"/>
+                    </TouchableOpacity>
+    });
+
+
+    showModal = async (item) => {
+        this.updateViewMp3(item.id);
+        if (this.state.modalVisible == true) {
+            await this.setState({
+                    modalVisible: false,
+                })
+            this.setState({
+                modalVisible: true,
+                item: item,
+            })
+        }if (this.state.modalVisible == false) {
+            this.setState({
+                modalVisible: true,
+                item: item,
+            })
+        }
+
+    }
+
+    onCloseMp3 = (data) => {
+        if (data) {
+            this.setState({
+                modalVisible: false
+            })
+        }
+    }
+
+    updateViewMp3 = async (mp3_id) => {
+        let response = await SERVICES.updateViewMp3(mp3_id);
+    }
     renderItem(item){
         return(
-            
-            <TouchableOpacity style={styles.itemList}>
-      
+            <TouchableOpacity 
+                style={styles.itemList}
+                onPress={()=> this.showModal(item)}
+            >
                 <Icon style={styles.itemListPlay} name="md-arrow-dropright-circle" size={30} color="#404b69"/>
                 <View style={styles.itemListText}>
                     <Text style={{color:'#fff',fontWeight:'bold', fontSize:16}}>{item.name}</Text>
-                    <Text style={{color:'#404b69'}}>{item.time}</Text>
+                    <Text style={{color:'#404b69'}}>{item.singer}</Text>
                 </View>
                 <Icon style={styles.itemListMore} name="md-more" size={30} color="#fff"/>
-              
             </TouchableOpacity>
         )
     }
@@ -63,20 +98,17 @@ export default class Artist extends Component {
         this.props.navigation.navigate('Home')
     }
     render() {
+        const singerData = this.props.navigation.state.params.singerData;
+        const images = CONFIG.API.URL_GET_ITEM + singerData.avatar
         return (
             <ImageBackground
                 source={require('../images/background.png')} style={styles.container}
             >
-                <View style={styles.header}>
-                    <Icon onPress={() => this.goBack()} style={{flex:2,marginLeft:20}} name="md-arrow-back" size={30} color="#fff"/>
-                    <Text style={{color:'#fff', fontWeight:'bold', fontSize:20, flex:6,textAlign:'center'}}>Artist</Text>
-                    <Icon style={{flex:2, marginLeft:50}} name="md-search" size={30} color="#fff"/>
-                </View>
                 <View style={styles.main}>
-                    <Image source={require('../images/singer/singer.png')} style={styles.artistImage} />
-                    <View style={{marginTop:30}}>
-                        <Text style={{color:'#fff',fontSize:24}}>Alicia Q</Text>
-                        <Text style={{color:'#404b69'}}>3,254 Follower</Text>
+                    <Image source={{uri:images}} style={styles.artistImage} />
+                    <View style={{marginTop:10}}>
+                        <Text style={{color:'#fff',fontSize:24, textAlign:'center', paddingVertical: 10}}>{singerData.singer}</Text>
+                        <Text style={{color:'#404b69', textAlign:'center'}}>3,254 Follower</Text>
                     </View>
                     <View style={styles.artistButton}>
                         <TouchableOpacity style={styles.artistPlay}>
@@ -90,30 +122,35 @@ export default class Artist extends Component {
                         </TouchableOpacity>
                     </View>
                     <Text style={{color:'#fff',marginRight:'70%',marginBottom:20}}>Popular</Text>
-                    
+                    {this.state.isLoading ? (
                         <FlatList
-                            data={artistList}
+                            data={this.state.data}
                             renderItem={({item,index})=>this.renderItem(item)}
                             keyExtractor={item=>item.id}
                         />
-                    
+                    ) : null}     
                 </View>
-                
+                {this.state.modalVisible ? (
+                <NowPlay 
+                    data={this.state.item}
+                    onCloseMp3={this.onCloseMp3}
+                />
+            ) : null}
             </ImageBackground>
         )
     }
 }
 const styles= StyleSheet.create({
     container:{
-        flex:1
+        flex:1,
     },
     main:{
         flex:1,
         justifyContent:"center",
-        alignItems:'center'
+        alignItems:'center',
+        marginTop: 60,
     },
     header:{
-        
         flexDirection:'row',
         marginTop:10
     },
@@ -152,20 +189,18 @@ const styles= StyleSheet.create({
     },
     itemList:{
         flexDirection:'row',
-        width:400,
-        
+        marginVertical: 5,
+        justifyContent:'center',
+        alignItems:'center'
     },
    
-    itemListMore:{
-       flex:1
-    },
+    // itemListMore:{
+    //    flex:1
+    // },
     
     itemListText:{
         textAlign:'center',
-        flex:8
+        width: '90%',
+        paddingLeft: 10
       },
-      itemListPlay:{
-        flex:1,
-        paddingLeft:20,
-    },
 })

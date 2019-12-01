@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Text, View,Image,ImageBackground,StyleSheet,TouchableOpacity,TextInput  } from 'react-native';
 import SERVICES from '../services/index';
+import RootToast from './RootToast/index';
 export default class Login extends Component {
     static navigationOptions = {
         //To hide the ActionBar/NavigationBar
@@ -21,7 +22,7 @@ export default class Login extends Component {
         const {username, password} = this.state;
         let response = await SERVICES.login(username, password);
         if (response[0].status == 200) {
-            this.props.navigation.navigate('Home', {dataUser: response})
+            this.props.navigation.navigate('Home')
         }else {
             console.log('deo co gi')
         }

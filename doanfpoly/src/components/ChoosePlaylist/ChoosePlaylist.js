@@ -57,10 +57,9 @@ export default class ChoosePlaylist extends Component {
             console.log('deo co gi')
         }
     }
-    addMp3ToPlaylist =  (playlist_id) => {
+    addMp3ToPlaylist =   (playlist_id) => {
         SERVICES.addMp3Playlist(this.state.mp3_id, playlist_id);
         this.props.navigation.dispatch(NavigationActions.back());
-        console.log('ok rui')
     }
     renderPlaylist = ({item, index}) => {
         return (
