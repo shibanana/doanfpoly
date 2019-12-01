@@ -113,7 +113,8 @@ export default class Home extends Component {
                 isLoading: true,
 
             })
-            this.arrayHolder=response
+            this.arrayHolder=response;
+            CONFIG.dataMp3=response;
             console.log('ok')
         } else {
             console.log("error")
