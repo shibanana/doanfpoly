@@ -2,30 +2,17 @@ import React, { Component } from 'react'
 import { Text, View, StatusBar, ImageBackground, StyleSheet, FlatList, TouchableOpacity, Dimensions, Image } from 'react-native'
 import CONFIG from '../../config/custom';
 import SERVICES from '../../services/index';
+import NowPlay from '../NowPlay'
 const width = Dimensions.get('window').width;
-const data = [
-    {
-        name: 'Bước qua đời nhau',
-        singer: 'Lê Bảo Bình',
-        id:'1'
-    },
-    {
-        name: 'Bước qua đời nhau',
-        singer: 'Lê Bảo Bình',
-        id:'2'
-    },
-    {
-        name: 'Bước qua đời nhau',
-        singer: 'Lê Bảo Bình',
-        id:'3'
-    },
-]
+
 export default class PlaylistItem extends Component {
     constructor(props){
         super(props);
         this.state = {
             isLoading: false,
             data: [],
+            item:[],
+            modalVisible: false,
         }
     }
     static navigationOptions = ({ navigation }) => ({
@@ -46,9 +33,42 @@ export default class PlaylistItem extends Component {
         this.props.navigation.navigate('Playlist')
     }
 
+    showModal = async (item) => {
+        this.updateViewMp3(item.id);
+        if (this.state.modalVisible == true) {
+            await this.setState({
+                    modalVisible: false,
+                })
+            this.setState({
+                modalVisible: true,
+                item: item,
+            })
+        }if (this.state.modalVisible == false) {
+            this.setState({
+                modalVisible: true,
+                item: item,
+            })
+        }
+
+    }
+
+    onCloseMp3 = (data) => {
+        if (data) {
+            this.setState({
+                modalVisible: false
+            })
+        }
+    }
+
+    updateViewMp3 = async (mp3_id) => {
+        let response = await SERVICES.updateViewMp3(mp3_id);
+    }
     renderPlaylist = ({item, index}) => {
         return (
-            <TouchableOpacity style = {styles.itemPlaylist}>
+            <TouchableOpacity 
+                style = {styles.itemPlaylist}
+                onPress ={()=> this.showModal(item)}
+            >
                 <Text style = {styles.itemIndex}>{index+1}</Text>
                 <View style = {styles.itemInfo}>
                     <Text style = {styles.infoSong}>{item.name}</Text>
@@ -60,6 +80,8 @@ export default class PlaylistItem extends Component {
     }
     render() {
         return (
+            <>
+            <StatusBar translucent = {true}  backgroundColor = {'transparent'}/>
             <ImageBackground style = {styles.container} source = {CONFIG.BG} >
                 <ImageBackground
                     style = {styles.header}
@@ -90,7 +112,15 @@ export default class PlaylistItem extends Component {
                  />
                 ) : null}
 
+
             </ImageBackground>
+            {this.state.modalVisible ? (
+                <NowPlay 
+                    data={this.state.item}
+                    onCloseMp3={this.onCloseMp3}
+                />
+            ) : null}
+            </>
         )
     }
 }
@@ -159,13 +189,13 @@ const styles = StyleSheet.create({
     },
     buttonBack: {
         position: 'absolute',
-        top: 0,
+        top: 20,
         left: 0,
         padding: 10,
     },
     buttonMore: {
         position: 'absolute',
-        top: 0,
+        top: 20,
         right: 0,
         padding: 10,
     },

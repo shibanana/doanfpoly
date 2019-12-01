@@ -24,6 +24,20 @@ export default {
         }
     },
 
+    getSinger: async () => {
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_GET_SINGER.url, {
+                method: ROUTES.API_GET_SINGER.method,
+                headers: CONFIG.API.HEADER,
+            });
+            let responseJson = await response.json();
+            console.log(responseJson)
+            return responseJson;
+        } catch (err) {
+            console.log(err)
+        }
+    },
+
     login: async (username, password) => {
         let formData = {username: username, password:password};
         try {
@@ -121,7 +135,6 @@ export default {
             });
             let responseJson = await response.json();
             console.log(responseJson);
-            console.log(playlist_id_convert)
             return responseJson
         } catch (err) {
             console.log(err);
@@ -143,5 +156,21 @@ export default {
         } catch (err) {
             console.log(err);
         }
-    }
+    },
+
+    viewMp3Singer: async (singer) => {
+        let formData = {singer: singer};
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_VIEW_MP3_SINGER.url, {
+                method: ROUTES.API_VIEW_MP3_SINGER.method,
+                headers: CONFIG.API.HEADER,
+                body: encodeFormData(formData),
+            });
+            let responseJson = await response.json();
+            console.log(responseJson);
+            return responseJson
+        } catch (err) {
+            console.log(err);
+        }
+    },
 }

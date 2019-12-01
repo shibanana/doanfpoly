@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,ScrollView,FlatList,TouchableOpacity, StatusBar } from 'react-native';
 import NowPlay from '../NowPlay';
 import CONFIG from '../../config/custom';
-import  SERVICES from '../../services/index'
+import  SERVICES from '../../services/index';
 const listRecommended=[
     {
         id:'1',
@@ -30,28 +30,7 @@ const listRecommended=[
     },
 
 ]
-const listSinger=[
-    {
-        id:'1',
-        images:require('../../images/singer/singer.png'),
-        singerName:'Alicia Q'
-    },
-    {
-        id:'2',
-        images:require('../../images/singer/singer2.png'),
-        singerName:'Lana Del Roj'
-    },
-    {
-        id:'3',
-        images:require('../../images/singer/singer3.png'),
-        singerName:'Camilla Nabilla'
-    },
-    {
-        id:'4',
-        images:require('../../images/singer/singer.png'),
-        singerName:'Alicia Q'
-    },
-]
+
 const listPlaylist=[
     {
         id:'1',
@@ -83,6 +62,7 @@ export default class Home extends Component {
     constructor(props){
         super(props);
         this.state={
+            dataSinger:[],
             data:[],
             dataSearch:[],
             isLoading:false,
@@ -106,15 +86,25 @@ export default class Home extends Component {
             return true;
         });
         
-        let response = await SERVICES.getMP3();
-        if(response) {
+        let responseMp3 = await SERVICES.getMP3();
+        if(responseMp3) {
             this.setState({
-                data: response,
+                data: responseMp3,
                 isLoading: true,
 
             })
-            this.arrayHolder=response
+            this.arrayHolder=responseMp3;
+            CONFIG.dataMp3=responseMp3; 
             console.log('ok')
+        } else {
+            console.log("error")
+        }
+
+        let responseSinger = await SERVICES.getSinger();
+        if (responseSinger) {
+            this.setState({
+                dataSinger: responseSinger
+            })
         } else {
             console.log("error")
         }
@@ -124,8 +114,8 @@ export default class Home extends Component {
             this.props.navigation.navigate('MainLogin')
         }
     }
-    Artist(){
-        this.props.navigation.navigate('Music')
+    Artist(item){
+        this.props.navigation.navigate('Artist', {singerData: item})
     }
     Discover(){
         this.props.navigation.navigate('Music')
@@ -141,8 +131,10 @@ export default class Home extends Component {
         if (this.state.modalVisible == true) {
             await this.setState({
                     modalVisible: false,
+
                 })
             this.setState({
+                isSearching:false,
                 modalVisible: true,
                 suggest: item,
             })
@@ -150,6 +142,7 @@ export default class Home extends Component {
             this.setState({
                 modalVisible: true,
                 suggest: item,
+                isSearching: false,
             })
         }
 
@@ -175,6 +168,13 @@ export default class Home extends Component {
         });
         this.setState({ dataSearch: newData });  
     };
+    onCloseMp3 = (data) => {
+        if (data) {
+            this.setState({
+                modalVisible: false
+            })
+        }
+    }
     renderRecommend(item) {
         return (
             <TouchableOpacity style={styles.recomList}
@@ -187,11 +187,12 @@ export default class Home extends Component {
       }
     
     renderSinger(item){
+        const images = CONFIG.API.URL_GET_ITEM + item.avatar;
         return(     
             <TouchableOpacity style={styles.singerList}
-            onPress={() => this.Artist()}> 
-                <Image source={item.images} style={styles.singerImages}></Image>
-                <Text style={styles.singerName}>{item.singerName}</Text>
+            onPress={() => this.Artist(item)}> 
+                <Image source={{uri:images}} style={styles.singerImages}></Image>
+                <Text style={styles.singerName}>{item.singer}</Text>
             </TouchableOpacity>
             
         ) 
@@ -212,7 +213,10 @@ export default class Home extends Component {
     }
     renderSuggest(item){
         const images = CONFIG.API.URL_GET_ITEM + item.picture;
-        return(     
+        const category = item.category;
+        return( 
+            <> 
+            {(category == 'suggest') && 
                 <TouchableOpacity style={styles.suggestList}
                  onPress={() => this.showModal(item)}
                 >
@@ -222,7 +226,8 @@ export default class Home extends Component {
                         <Text style={styles.suggestTextSinger}>{item.singer}</Text>
                     </View>
                 </TouchableOpacity>
-            
+            }  
+            </> 
         ) 
     }
     
@@ -242,6 +247,15 @@ export default class Home extends Component {
                             onChangeText={text => this.searchFilterFunction(text)}
                             onFocus={this.onFocusTextInput}
                         />
+                        {this.state.isSearching ? (
+                            <TouchableOpacity
+                                onPress={()=>this.setState({isSearching: false})}
+                                style={styles.cancelSearch}
+                            >
+                                <Text style={styles.cancelSearchText}>{"Hủy"}</Text>
+                            </TouchableOpacity>
+                        ) : null}
+
                     </View>
                     {this.state.isSearching ? (
                         <View style={{flex:1}}>
@@ -269,9 +283,9 @@ export default class Home extends Component {
                         <View style={styles.recomListAll}>
                             <Text style={styles.recomListTitle}>Ca sĩ nổi bật</Text>    
                                 <FlatList
-                                    data={listSinger}
+                                    data={this.state.dataSinger}
                                     renderItem={({item,index})=>this.renderSinger(item)}
-                                    keyExtractor={item=>item.id}
+                                    keyExtractor={item=>item.singer}
                                     horizontal={true}
                                     showsHorizontalScrollIndicator={false}
                                 />     
@@ -318,12 +332,13 @@ export default class Home extends Component {
 
                     </ScrollView>
                     )}
-
             </ImageBackground>
             {this.state.modalVisible ? (
                 <NowPlay
                     data = {this.state.suggest}
+                    onCloseMp3={this.onCloseMp3}
                 />
+
             ) : null}
             </>
         )
@@ -358,6 +373,15 @@ const styles = StyleSheet.create({
         paddingLeft:15,
         color:'#fff',
     },
+    cancelSearch:{
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cancelSearchText: {
+        color: '#fff',
+        fontSize: 16,
+        paddingHorizontal: 5
+    },
     recomListAll:{
         marginTop:30,
     },
@@ -386,8 +410,8 @@ const styles = StyleSheet.create({
         borderRadius:5,
     },
     singerImages:{
-        width:100,
-        height:100,
+        width:80,
+        height:80,
         borderRadius:100/2,
         marginBottom:5
     },
@@ -399,6 +423,8 @@ const styles = StyleSheet.create({
         marginRight:20,
         marginLeft:10,
         marginTop:10,
+        justifyContent:'center',
+        alignItems:'center'
     },
     playlist:{
         flexDirection:'row',

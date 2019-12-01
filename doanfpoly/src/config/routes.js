@@ -20,4 +20,8 @@ export default{
     API_VIEW_DETAIL_PLAYLIST: { method: 'POST', url: '/view_playlist_detail.php'},
 
     API_UPDATE_VIEW_MP3: { method: 'POST', url: '/update_view_mp3.php'},
+
+    API_GET_SINGER: { method: 'GET', url: '/view_singer.php'},
+    
+    API_VIEW_MP3_SINGER: { method: 'POST', url: '/view_mp3_singer.php'},
 }

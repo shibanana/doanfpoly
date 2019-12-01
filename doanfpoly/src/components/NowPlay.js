@@ -55,7 +55,6 @@ class NowPlay extends Component {
     }
 
     componentDidMount(){
-
             this.play();
 
             this.timeout = setInterval(() => {
@@ -158,7 +157,9 @@ class NowPlay extends Component {
     addPlaylist = () => {
         this.props.navigation.navigate('ChoosePlaylist', {mp3_id: this.state.data.id})
     }
-    
+    closeModal = () => {
+        this.props.onCloseMp3(true)
+    }
     renderHeader = () => {
         const RotateData = this.RotateValueHolder.interpolate({
             inputRange: [0, 1],
