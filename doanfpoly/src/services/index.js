@@ -173,4 +173,19 @@ export default {
             console.log(err);
         }
     },
+
+    getAppPlaylist: async () => {
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_VIEW_APP_PLAYLIST.url, {
+                method: ROUTES.API_VIEW_APP_PLAYLIST.method,
+                headers: CONFIG.API.HEADER,
+            });
+            let responseJson = await response.json();
+            console.log(responseJson)
+            return responseJson;
+        } catch (err) {
+            console.log(err)
+        }
+    },
+
 }

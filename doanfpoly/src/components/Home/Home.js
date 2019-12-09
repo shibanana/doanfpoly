@@ -3,60 +3,6 @@ import { Text, StyleSheet, View, BackHandler,Image, TextInput, ImageBackground,S
 import NowPlay from '../NowPlay';
 import CONFIG from '../../config/custom';
 import  SERVICES from '../../services/index';
-const listRecommended=[
-    {
-        id:'1',
-        images:require('../../images/recommended/recom-list.png'),
-        title:'The RockiLand',
-        description:'Playlist by Renee Zw',
-    },
-    {
-        id:'2',
-        images:require('../../images/recommended/recom-list2.png'),
-        title:'The Taylor',
-        description:'Playlist by Renee Zw',
-    },
-    {
-        id:'3',
-        images:require('../../images/recommended/recom-list.png'),
-        title:'The Justin',
-        description:'Playlist by Renee Zw',
-    },
-    {
-        id:'4',
-        images:require('../../images/recommended/recom-list2.png'),
-        title:'The Shiba',
-        description:'Playlist by Renee Zw',
-    },
-
-]
-
-const listPlaylist=[
-    {
-        id:'1',
-        images:require('../../images/hotplaylist/hotplaylist-1.png'),
-        title:'Summer Time',
-        description:'Playlist by Renee Zwalger',
-    },
-    {
-        id:'2',
-        images:require('../../images/hotplaylist/hotplaylist-2.png'),
-        title:'Nature Accoustic',
-        description:'Playlist by Denis Buroughi',
-    },
-    {
-        id:'3',
-        images:require('../../images/hotplaylist/hotplaylist-3.png'),
-        title:'Weekly Blues',
-        description:'Playlist by Renee Zwalger',
-    },
-    {
-        id:'4',
-        images:require('../../images/hotplaylist/hotplaylist-4.png'),
-        title:'Coffee Jaazy',
-        description:'Playlist by Denis Buroughi',
-    },
-]
 
 export default class Home extends Component {
     constructor(props){
@@ -64,6 +10,7 @@ export default class Home extends Component {
         this.state={
             dataSinger:[],
             data:[],
+            dataApp:[],
             dataSearch:[],
             isLoading:false,
             isPlaying:false,
@@ -90,8 +37,6 @@ export default class Home extends Component {
         if(responseMp3) {
             this.setState({
                 data: responseMp3,
-                isLoading: true,
-
             })
             this.arrayHolder=responseMp3;
             CONFIG.dataMp3=responseMp3; 
@@ -105,6 +50,17 @@ export default class Home extends Component {
             this.setState({
                 dataSinger: responseSinger
             })
+        } else {
+            console.log("error")
+        }
+
+        let responseApp = await SERVICES.getAppPlaylist();
+        if (responseApp) {
+            this.setState({
+                dataApp: responseApp,
+                isLoading: true,
+            })
+            console.log(this.state.dataApp)
         } else {
             console.log("error")
         }
@@ -176,13 +132,20 @@ export default class Home extends Component {
         }
     }
     renderRecommend(item) {
+        const images = CONFIG.API.URL_GET_ITEM + item.custom_playlist_image;
+        const category = item.custom_playlist_category;
         return (
-            <TouchableOpacity style={styles.recomList}
-            onPress={() => this.showPlaylist()}>
-            <Image source={item.images} style={styles.listImage}></Image>
-            <Text style={styles.listTitle}>{item.title}</Text>
-            <Text style={styles.listDescription}>{item.description}</Text>
-            </TouchableOpacity>
+            <> 
+            {(category == 'recommend') && 
+                <TouchableOpacity style={styles.recomList}
+                onPress={() => this.showPlaylist()}>
+                <Image source={{uri:images}} style={styles.listImage}></Image>
+                <Text style={styles.listTitle}>{item.custom_playlist_name}</Text>
+                <Text style={styles.listDescription}>Playlist by Renee Zwalger</Text>
+                </TouchableOpacity>
+            }
+            </>
+            
         );
       }
     
@@ -211,6 +174,28 @@ export default class Home extends Component {
             
         ) 
     }
+
+    renderHotPlaylist(item){
+        const images = CONFIG.API.URL_GET_ITEM + item.custom_playlist_image;
+        const category = item.custom_playlist_category;
+        return(
+            <> 
+            {(category == 'hotplaylist') && 
+                <TouchableOpacity 
+                    style={styles.playlistItem}
+                >   
+                    <Image  source={{uri:images}} style={styles.playlistImage}></Image>
+                    <View>
+                        <Text style={styles.playlistTitle}>{item.custom_playlist_name}</Text>
+                        <Text style={styles.playlistDescription}>Playlist by Renee Zwalger</Text>
+                    </View>
+
+                </TouchableOpacity>
+            }
+           </>
+        )
+    }
+
     renderSuggest(item){
         const images = CONFIG.API.URL_GET_ITEM + item.picture;
         const category = item.category;
@@ -267,15 +252,17 @@ export default class Home extends Component {
                         /> 
                         </View>
                     ) : (
-                        <ScrollView style={flex=1}
+                        <>
+                        {this.state.isLoading ? (
+                            <ScrollView style={flex=1}
                         showsVerticalScrollIndicator={false}
-                    >
+                        >
                         <View style={styles.recomListAll}>
                             <Text style={styles.recomListTitle}>Dành cho bạn</Text>
                                 <FlatList
-                                    data={listRecommended}
+                                    data={this.state.dataApp}
                                     renderItem={({item,index})=>this.renderRecommend(item)}
-                                    keyExtractor={item=>item.id}
+                                    keyExtractor={(item, index) => item.custom_playlist_id + index}
                                     horizontal={true}
                                     showsHorizontalScrollIndicator={false}
                                 />
@@ -292,33 +279,14 @@ export default class Home extends Component {
                         </View>
                         <View style={styles.recomListAll}>
                             <Text style={styles.recomListTitle}>Hot Playlist</Text>    
-                            <View style={styles.playlist}>
-                                <TouchableOpacity style={styles.playlistItem}
-                                 >
-                                    <Image source={listPlaylist[0].images} style={styles.playlistImage}></Image>
-                                    <Text style={styles.playlistTitle}>{listPlaylist[0].title}</Text>
-                                    <Text style={styles.playlistDescription}>{listPlaylist[0].description}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.playlistItem}>
-                                    <Image source={listPlaylist[1].images} style={styles.playlistImage}></Image>
-                                    <Text style={styles.playlistTitle}>{listPlaylist[1].title}</Text>
-                                    <Text style={styles.playlistDescription}>{listPlaylist[1].description}</Text>
-                                </TouchableOpacity>
-                            </View>
-                            <View style={styles.playlist}>
-                                <TouchableOpacity style={styles.playlistItem}>
-                                    <Image source={listPlaylist[2].images} style={styles.playlistImage}></Image>
-                                    <Text style={styles.playlistTitle}>{listPlaylist[2].title}</Text>
-                                    <Text style={styles.playlistDescription}>{listPlaylist[2].description}</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={styles.playlistItem}>
-                                    <Image source={listPlaylist[3].images} style={styles.playlistImage}></Image>
-                                    <Text style={styles.playlistTitle}>{listPlaylist[3].title}</Text>
-                                    <Text style={styles.playlistDescription}>{listPlaylist[3].description}</Text>
-                                </TouchableOpacity>
-                            </View>
+                            <FlatList 
+                                data={this.state.dataApp}
+                                renderItem={({item,index})=> this.renderHotPlaylist(item)}
+                                numColumns={2}
+                                keyExtractor={(item, index) => item.custom_playlist_id + index}
+                                showsVerticalScrollIndicator={false}
+                            />
                         </View>
-                        {this.state.isLoading ? (
                             <View style={styles.recomListAll}>
                             <Text style={styles.recomListTitle}>Gợi Ý</Text>
                             <FlatList
@@ -328,9 +296,10 @@ export default class Home extends Component {
                                     scrollEnabled={false}
                                 />   
                             </View>
-                        ) : null}
 
                     </ScrollView>
+                        ) : null}
+                        </>
                     )}
             </ImageBackground>
             {this.state.modalVisible ? (
@@ -394,7 +363,7 @@ const styles = StyleSheet.create({
     recomListTitle:{
         color:'#fff',
         fontSize:18,
-        fontWeight:'bold'
+        fontWeight:'bold',
     },
     listTitle:{
         color:'#fff',
@@ -434,17 +403,20 @@ const styles = StyleSheet.create({
     playlistItem:{
         flex:1,
         justifyContent:'space-between',
-        marginLeft:10
+        marginTop: 10,
+        marginLeft: '5%'
+
     },
     playlistImage:{
         borderRadius:5,
-        height:227,
-        width:162
+        height:200,
+        width:150
     },
     playlistTitle:{
         color:'#fff',  
         fontSize:15,
-        fontWeight:'bold'  
+        fontWeight:'bold',
+        alignSelf:'flex-start'
     },
     playlistDescription:{
         color:'#a3a6ae',

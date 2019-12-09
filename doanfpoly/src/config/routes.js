@@ -24,4 +24,8 @@ export default{
     API_GET_SINGER: { method: 'GET', url: '/view_singer.php'},
     
     API_VIEW_MP3_SINGER: { method: 'POST', url: '/view_mp3_singer.php'},
+
+    API_VIEW_APP_PLAYLIST: { method: 'GET', url: '/view_custom_playlist.php'},
+
+    API_VIEW_APP_PLAYLIST_DETAILS: { method: 'POST', url: '/view_custom_details.php'},
 }
