@@ -50,6 +50,7 @@ class NowPlay extends Component {
             toValue: 1,
             duration: 15000,
             // easing: Easing.linear
+            useNativeDriver: true,
           }
         ).start(() => this.StartImageRotateFunction())
     }
@@ -294,11 +295,11 @@ class NowPlay extends Component {
     }
     
     render() {
-
+        const height = this.props.tabBar ? deviceHeight : deviceHeight +48;
         return(
             <BottomSheet
                 ref={bottomSheetRef}
-                snapPoints = {[deviceHeight, 48]}
+                snapPoints = {[height, 48]}
                 renderHeader = {this.renderHeader}
             />
 

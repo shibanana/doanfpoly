@@ -118,8 +118,8 @@ export default class Home extends Component {
     updateViewMp3 = async (mp3_id) => {
         let response = await SERVICES.updateViewMp3(mp3_id);
     }
-    showPlaylist = () => {
-        this.props.navigation.navigate('PlaylistItem')
+    showPlaylist = (id, playlist_name) => {
+        this.props.navigation.navigate('PlaylistItem', {id:id, status:'Admin',playlistName: playlist_name})
     }
 
     onFocusTextInput = () => {
@@ -149,8 +149,10 @@ export default class Home extends Component {
         return (
             <> 
             {(category == 'recommend') && 
-                <TouchableOpacity style={styles.recomList}
-                onPress={() => this.showPlaylist()}>
+                <TouchableOpacity 
+                    style={styles.recomList}
+                    onPress={() => this.showPlaylist(item.custom_playlist_id, item.custom_playlist_name)}
+                >
                 <Image source={{uri:images}} style={styles.listImage}></Image>
                 <Text style={styles.listTitle}>{item.custom_playlist_name}</Text>
                 <Text style={styles.listDescription}>Playlist by Renee Zwalger</Text>
@@ -195,10 +197,11 @@ export default class Home extends Component {
             {(category == 'hotplaylist') && 
                 <TouchableOpacity 
                     style={styles.playlistItem}
+                    onPress={() => this.showPlaylist(item.custom_playlist_id,item.custom_playlist_name)}
                 >   
                     <Image  source={{uri:images}} style={styles.playlistImage}></Image>
                     <View>
-                        <Text style={styles.playlistTitle}>{item.custom_playlist_name}</Text>
+                        <Text style={styles.playlistTitle} numberOfLines={1}>{item.custom_playlist_name}</Text>
                         <Text style={styles.playlistDescription}>Playlist by Renee Zwalger</Text>
                     </View>
 
@@ -318,6 +321,7 @@ export default class Home extends Component {
                 <NowPlay
                     data = {this.state.suggest}
                     onCloseMp3={this.onCloseMp3}
+                    tabBar={true}
                 />
 
             ) : null}
@@ -428,7 +432,7 @@ const styles = StyleSheet.create({
         color:'#fff',  
         fontSize:15,
         fontWeight:'bold',
-        alignSelf:'flex-start'
+        alignSelf:'flex-start',
     },
     playlistDescription:{
         color:'#a3a6ae',

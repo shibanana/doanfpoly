@@ -13,6 +13,8 @@ export default class PlaylistItem extends Component {
             data: [],
             item:[],
             modalVisible: false,
+            bg:'',
+            playlistName:this.props.navigation.state.params.playlistName,
         }
     }
     static navigationOptions = ({ navigation }) => ({
@@ -20,17 +22,30 @@ export default class PlaylistItem extends Component {
     });
 
     componentDidMount = async () => {
-        console.log(this.props.navigation.state.params.id)
-        let response = await SERVICES.viewDetailPlaylist(this.props.navigation.state.params.id);
-        if(response){
-            this.setState({
-                data: response,
-                isLoading: true,
-            })
+        console.log(this.props.navigation.state.params.id);
+        const id = this.props.navigation.state.params.id;
+        if (this.props.navigation.state.params.status == 'Admin'){
+            let response = await SERVICES.viewAppPlaylistDetail(this.props.navigation.state.params.id);
+            if(response){
+                this.setState({
+                    data: response,
+                    isLoading: true,
+                    bg: response[0].picture
+                })
+            }
+        } else {
+            let response = await SERVICES.viewDetailPlaylist(this.props.navigation.state.params.id);
+            if(response){
+                this.setState({
+                    data: response,
+                    isLoading: true,
+                    bg: response[0].picture
+                })
+            }
         }
     }
     goBack = () => {
-        this.props.navigation.navigate('Playlist')
+        this.props.navigation.goBack();
     }
 
     showModal = async (item) => {
@@ -79,13 +94,17 @@ export default class PlaylistItem extends Component {
         )
     }
     render() {
+        const images = CONFIG.API.URL_GET_ITEM + this.state.bg;
         return (
             <>
             <StatusBar translucent = {true}  backgroundColor = {'transparent'}/>
-            <ImageBackground style = {styles.container} source = {CONFIG.BG} >
+            <ImageBackground 
+                style = {styles.container} 
+                source = {CONFIG.BG} 
+            >
                 <ImageBackground
                     style = {styles.header}
-                    source = {CONFIG.PLAYLIST}
+                    source = {{uri:images}}
                     blurRadius = {10}
                 >
                     <TouchableOpacity style = {styles.buttonBack} onPress = {() => this.goBack()}>
@@ -95,8 +114,8 @@ export default class PlaylistItem extends Component {
                         <Image style = {styles.iconMore} source = {CONFIG.IC_MORE} tintColor = {'#fff'} />
                     </TouchableOpacity>
                     <View style = {styles.headerInfo}>
-                        <Image style = {styles.infoImg} source = {CONFIG.PLAYLIST} />
-                        <Text style = {styles.infoName}>dsa</Text>
+                        <Image style = {styles.infoImg} source = {{uri:images}} />
+                        <Text style = {styles.infoName}>{this.state.playlistName}</Text>
                         <Text style = {styles.infoIcon}>PLAYLIST</Text>
                     </View>
                     <TouchableOpacity style = {styles.random} >
@@ -118,6 +137,7 @@ export default class PlaylistItem extends Component {
                 <NowPlay 
                     data={this.state.item}
                     onCloseMp3={this.onCloseMp3}
+                    tabBar={false}
                 />
             ) : null}
             </>
@@ -155,6 +175,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 18,
         marginTop: 10,
+        marginBottom: 5,
     },
     infoIcon: {
         color: '#fff',

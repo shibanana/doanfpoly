@@ -203,4 +203,20 @@ export default {
         }
     },
 
+    viewAppPlaylistDetail : async (custom_playlist_id) => {
+        let custom_playlist_id_convert = parseInt(custom_playlist_id, 10);
+        let formData = {custom_playlist_id: custom_playlist_id_convert};
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_VIEW_APP_PLAYLIST_DETAILS.url, {
+                method: ROUTES.API_VIEW_APP_PLAYLIST_DETAILS.method,
+                headers: CONFIG.API.HEADER,
+                body: encodeFormData(formData),
+            });
+            let responseJson = await response.json();
+            console.log(responseJson);
+            return responseJson;
+        } catch (err) {
+            console.log(err);
+        }
+    },
 }
