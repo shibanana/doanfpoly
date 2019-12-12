@@ -45,6 +45,18 @@ export default class Home extends Component {
             console.log("error")
         }
 
+        let responseMp4 = await SERVICES.getMP4();
+        if(responseMp4) {
+            this.setState({
+                data: responseMp4,
+            })
+            this.arrayHolder=responseMp4;
+            CONFIG.dataMp4=responseMp4; 
+            console.log('mp4 ok')
+        } else {
+            console.log("error")
+        }
+
         let responseSinger = await SERVICES.getSinger();
         if (responseSinger) {
             this.setState({

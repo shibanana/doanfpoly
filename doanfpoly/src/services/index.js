@@ -24,6 +24,21 @@ export default {
         }
     },
 
+    getMP4: async () => {
+        try {
+            let response = await fetch(CONFIG.API.URL+ROUTES.API_GET_MP4.url, {
+                method: ROUTES.API_GET_MP4.method,
+                headers: CONFIG.API.HEADER,
+            });
+
+            let responseJson = await response.json();
+            console.log(responseJson);
+            return responseJson;
+        } catch(err) {
+            console.log(err)
+        }
+    },
+
     getSinger: async () => {
         try {
             let response = await fetch(CONFIG.API.URL+ROUTES.API_GET_SINGER.url, {
