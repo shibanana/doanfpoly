@@ -15,6 +15,9 @@ export default class Signup extends Component {
             username: '',
             password:'',
             repassword:'',
+            validateUserName: false,
+            validatePassword: false,
+            compare: false,
         };
       }
       login(){
@@ -22,13 +25,37 @@ export default class Signup extends Component {
     }
 
     register = async () => {
-        const {name, username, password} = this.state;
-        let response = await SERVICES.register(name, username, password);
-        if( response[0].status == 200 ) {
-            this.props.navigation.navigate('Login');
-        }else {
-            console.log('deo co gi')
+        if(this.state.username.length<6){
+            this.setState({
+                validateUserName: true
+            })
+        }else{
+            if(this.state.password.length<6){
+                this.setState({
+                    validatePassword: true,
+                    validateUserName: false,
+                })
+            }else{
+                if(this.state.password != this.state.repassword){
+                    this.setState({
+                        compare: true,
+                        validatePassword: false
+                    })
+                }else{
+                    this.setState({
+                        compare:false
+                    });
+                    const {name, username, password} = this.state;
+                    let response = await SERVICES.register(name, username, password);
+                    if( response[0].status == 200 ) {
+                        this.props.navigation.navigate('Login');
+                    }else {
+                        console.log('ko co gi')
+                    }
+                }
+            }
         }
+
     }
     render() {
         return (
@@ -55,11 +82,14 @@ export default class Signup extends Component {
                         />
                         <TextInput
                             style={styles.textInput}
-                            placeholder="name@gmail.com"
+                            placeholder="Username"
                             onChangeText={(text) => this.setState({username: text})}
                             value={this.state.username}
                             placeholderTextColor="#404b69"
                         />
+                        {this.state.validateUserName ? (
+                            <Text style={styles.validateText}>*Tên đăng nhập phải trên 6 ký tự</Text>
+                        ) : null}
                         <TextInput
                             style={styles.textInput}
                             secureTextEntry={true}
@@ -68,6 +98,9 @@ export default class Signup extends Component {
                             value={this.state.password}
                             placeholderTextColor="#404b69"
                         />
+                        {this.state.validatePassword ? (
+                            <Text style={styles.validateText}>*Mật khẩu phải trên 6 ký tự</Text>
+                        ) : null}
                         <TextInput
                             style={styles.textInput}
                             secureTextEntry={true}
@@ -76,6 +109,9 @@ export default class Signup extends Component {
                             value={this.state.repassword}
                             placeholderTextColor="#404b69"
                         />
+                        {this.state.compare ? (
+                            <Text style={styles.validateText}>*Mật khẩu không trùng</Text>
+                        ) : null}
                     </View>
                     <TouchableOpacity
                         style={styles.buttonLogin}
@@ -206,5 +242,9 @@ const styles= StyleSheet.create({
         textAlign:'right',
         marginBottom:20,
         marginLeft:'65%'
+    },
+    validateText:{
+        marginLeft: 10,
+        color: 'red'
     }
 })

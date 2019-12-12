@@ -16,6 +16,7 @@ export default class Playlist extends Component {
             isLoading: false,
             dataPlaylist: [],
         }
+        this.arrayHolder=[];
     }
 
     static navigationOptions = ({ navigation }) => ({
@@ -66,24 +67,32 @@ export default class Playlist extends Component {
             this.setState({
                 dataPlaylist: response,
             })
+            this.arrayHolder=response;
         } else {
             console.log('deo co gi')
         }
     }
 
-    detailPlaylist = async (playlist_id) => {
-        this.props.navigation.navigate('PlaylistItem', {id:playlist_id})
+    detailPlaylist = async (playlist_id, playlist_name) => {
+        this.props.navigation.navigate('PlaylistItem', {id:playlist_id,playlistName: playlist_name})
     }
 
-    // detailPlaylist =  () => {
-    //     this.props.navigation.navigate('PlaylistItem')
-    // }
+    searchFilterFunction = text => {    
+        const newData = this.arrayHolder.filter(item => {      
+            const itemData = item.playlist_name ? item.playlist_name.toUpperCase() : ''.toUpperCase();
+           const textData = text.toUpperCase();
+            
+           return itemData.indexOf(textData) > -1;    
+        });
+        
+        this.setState({ dataPlaylist: newData });  
+    };
 
     renderPlaylist = ({item, index}) => {
         return (
             <TouchableOpacity 
                 style = {styles.playlistItem} 
-                onPress = {() => this.detailPlaylist(item.playlist_id)}  
+                onPress = {() => this.detailPlaylist(item.playlist_id, item.playlist_name)}  
             >
                 <Image style = {styles.itemImg} source = {CONFIG.PLAYLIST} />
                 <View style = {styles.itemContent}>
@@ -103,6 +112,7 @@ export default class Playlist extends Component {
                     style={styles.topBarInput}
                     placeholder="Tìm kiếm"
                     placeholderTextColor = "#a3a6ae"
+                    onChangeText={text => this.searchFilterFunction(text)}
                 />
                 <TouchableOpacity
                     style = {styles.playlistButton}
